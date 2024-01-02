@@ -3,17 +3,22 @@
 {
 	"name": "C# (.NET)",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "mcr.microsoft.com/devcontainers/dotnet:1-8.0-bookworm"
+	"image": "mcr.microsoft.com/devcontainers/dotnet:1-8.0-bookworm",
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
 
+	"remoteEnv": {
+    "ASPNETCORE_Kestrel__Certificates__Default__Password": "SecurePwdGoesHere",
+    "ASPNETCORE_Kestrel__Certificates__Default__Path": "${containerEnv:HOME:/home/vscode}/.aspnet/https/aspnetapp.pfx"
+	},
+
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [5000, 5001],
 	// "portsAttributes": {
-	//		"5001": {
-	//			"protocol": "https"
-	//		}
+	// 		"5001": {
+	// 			"protocol": "https"
+	// 		}
 	// }
 
 	// Use 'postCreateCommand' to run commands after the container is created.
