@@ -1,8 +1,16 @@
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace UtopikSandcastle.SecurityAPI.Models;
 
 public class AccessControlDevice
 {
-  public String Id { get; } = Guid.NewGuid().ToString();
+  [BsonId]
+  [BsonRepresentation(BsonType.ObjectId)]
+  [SwaggerSchema(ReadOnly = true)]
+  public string? Id { get; set; }
+
   public required string Name { get; set; }
+  
 }
