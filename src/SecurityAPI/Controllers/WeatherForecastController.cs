@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace SecurityAPI.Controllers;
+namespace UtopikSandcastle.SecurityAPI.Controllers;
 
 [ApiController]
 [Route("[controller]")]
