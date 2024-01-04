@@ -3,7 +3,7 @@ services:
     image: mcr.microsoft.com/devcontainers/dotnet:1-8.0-bookworm
     volumes:
       - ../..:/workspaces:cached
-      - ~/.aspnet:/home/vscode/.aspnet
+      - ~/.aspnet/https:/home/vscode/.aspnet/https
     network_mode: service:mongo
     command: sleep infinity
 

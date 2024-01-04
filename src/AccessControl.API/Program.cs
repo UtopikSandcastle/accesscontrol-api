@@ -1,5 +1,7 @@
-using UtopikSandcastle.SecurityAPI.Models;
-using UtopikSandcastle.SecurityAPI.Services;
+using System.Text.Json.Serialization;
+using UtopikSandcastle.AccessControl.API;
+using UtopikSandcastle.AccessControl.API.Models;
+using UtopikSandcastle.AccessControl.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,7 +12,10 @@ builder.Services.Configure<SecurityDatabaseSettings>(
 
 builder.Services.AddControllers()
   .AddJsonOptions(options =>
-    options.JsonSerializerOptions.PropertyNamingPolicy = null);
+  {
+    options.JsonSerializerOptions.PropertyNamingPolicy = null;
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+  });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -19,6 +24,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 builder.Services.AddSingleton<AccessControlDevicesService>();
+builder.Services.AddSingleton<AccessControlSystemsService>();
 
 var app = builder.Build();
 

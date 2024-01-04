@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Options;
 using MongoDB.Driver;
-using UtopikSandcastle.SecurityAPI.Models;
+using UtopikSandcastle.AccessControl.API.Models;
 
-namespace UtopikSandcastle.SecurityAPI.Services;
+namespace UtopikSandcastle.AccessControl.API.Services;
 
 public class AccessControlDevicesService
 {
@@ -20,7 +20,7 @@ public class AccessControlDevicesService
       securityDatabaseSettings.Value.AccessControlDevicesCollectionName);
   }
 
-  public async Task<List<AccessControlDevice>> GetAsync() => 
+  public async Task<List<AccessControlDevice>> GetAsync() =>
     await _accesControlDevicesCollection.Find(_ => true).ToListAsync();
 
   public async Task<AccessControlDevice?> GetAsync(string id) =>

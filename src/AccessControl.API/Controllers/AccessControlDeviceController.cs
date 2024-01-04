@@ -1,9 +1,9 @@
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Mvc;
-using UtopikSandcastle.SecurityAPI.Models;
-using UtopikSandcastle.SecurityAPI.Services;
+using UtopikSandcastle.AccessControl.API.Models;
+using UtopikSandcastle.AccessControl.API.Services;
 
-namespace UtopikSandcastle.SecurityAPI.Controllers;
+namespace UtopikSandcastle.AccessControl.API.Controllers;
 
 [ApiController]
 [Route("api/v1/[controller]")]
@@ -14,7 +14,7 @@ public class AccessControlDeviceController(AccessControlDevicesService accessCon
   [HttpGet]
   public async Task<List<AccessControlDevice>> Get() =>
     await _accessControlDevicesService.GetAsync();
-    
+
   [HttpGet("{id:length(24)}")]
   public async Task<ActionResult<AccessControlDevice>> Get(string id)
   {

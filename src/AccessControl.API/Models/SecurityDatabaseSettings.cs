@@ -1,4 +1,4 @@
-namespace UtopikSandcastle.SecurityAPI.Models;
+namespace UtopikSandcastle.AccessControl.API.Models;
 
 public class SecurityDatabaseSettings
 {
@@ -7,4 +7,6 @@ public class SecurityDatabaseSettings
     public string DatabaseName { get; set; } = null!;
 
     public string AccessControlDevicesCollectionName { get; set; } = null!;
+
+    public string AccessControlSystemsCollectionName { get; set; } = null!;
 }
