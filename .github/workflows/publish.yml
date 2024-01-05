@@ -94,3 +94,35 @@ jobs:
         # This step uses the identity token to provision an ephemeral certificate
         # against the sigstore community Fulcio instance.
         run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
+
+  openapi:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract OpenAPI configuration file
+        uses: shrink/actions-docker-extract@v3
+        with:
+          image: ${{ steps.meta.outputs.tags }}
+          path: /App/openapi.json
+          destination: openapi.json
+
+      - name: Upload OpenAPI configuration file to cache
+        uses: actions/cache@v3.3.2
+        with:
+          path: openapi.json
+          key: openapi
+          
+  npm:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download OpenAPI configuration file from cache
+        uses: actions/cache/restore@v3
+        id: cache
+        with:
+          path: openapi.json
+          key: openapi
+    
+      - name: Generate code
+        uses: hatamiarash7/openapi-generator@v0.2.0
+        with:
+          generator: typescript-angular
+          openapi-file: openapi.json
