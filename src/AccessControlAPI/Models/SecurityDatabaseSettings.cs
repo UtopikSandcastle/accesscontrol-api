@@ -1,6 +1,6 @@
 namespace UtopikSandcastle.AccessControl.API.Models;
 
-public class SecurityDatabaseSettings
+public class AccessControlDatabaseSettings
 {
     public string ConnectionString { get; set; } = null!;
 

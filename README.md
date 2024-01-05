@@ -1,2 +1,2 @@
-# Security API
-[View the documentation](https://utopiksandcastle.github.io/docs/security-api/security-api.html)
+# Acess Control API
+[View the documentation](https://utopiksandcastle.github.io/docs/accesscontrol-api/overview.html)
