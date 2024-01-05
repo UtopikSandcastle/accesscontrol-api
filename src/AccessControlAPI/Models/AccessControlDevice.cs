@@ -21,7 +21,7 @@ public class AccessControlDevice
 
   public AccessControlDeviceType Type { get; set; }
 
-  public List<bool> Outputs { get; set; } = [];
+  public List<bool>? Outputs { get; set; }
 
-  public List<bool> Inputs { get; set; } = [];
+  public List<bool>? Inputs { get; set; }
 }

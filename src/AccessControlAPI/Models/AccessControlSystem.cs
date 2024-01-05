@@ -15,5 +15,5 @@ public class AccessControlSystem
   [SwaggerSchema(ReadOnly = true)]
   public string? Id { get; set; }
   public required string Name { get; set; }
-  public List<string> AccessControlDeviceIds { get; set; } = [];
+  public List<string> AccessControlDeviceIds { get; set; } = new List<string>() { };
 }

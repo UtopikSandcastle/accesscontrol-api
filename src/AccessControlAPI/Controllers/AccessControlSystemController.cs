@@ -5,9 +5,14 @@ namespace UtopikSandcastle.AccessControl.API;
 
 [ApiController]
 [Route("api/v1/[controller]")]
-public class AccessControlSystemController(AccessControlSystemsService accessControlSystemsService) : ControllerBase
+public class AccessControlSystemController : ControllerBase
 {
-  private readonly AccessControlSystemsService _accessControlSystemsService = accessControlSystemsService;
+  private readonly AccessControlSystemsService _accessControlSystemsService;
+
+  public AccessControlSystemController(AccessControlSystemsService accessControlSystemsService)
+  {
+    _accessControlSystemsService = accessControlSystemsService;
+  }
 
   [HttpGet]
   public async Task<List<AccessControlSystem>> Get() =>

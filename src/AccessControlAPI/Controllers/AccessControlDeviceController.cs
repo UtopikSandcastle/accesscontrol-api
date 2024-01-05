@@ -7,9 +7,14 @@ namespace UtopikSandcastle.AccessControl.API.Controllers;
 
 [ApiController]
 [Route("api/v1/[controller]")]
-public class AccessControlDeviceController(AccessControlDevicesService accessControlDevicesService) : ControllerBase
+public class AccessControlDeviceController : ControllerBase
 {
-  private readonly AccessControlDevicesService _accessControlDevicesService = accessControlDevicesService;
+  private readonly AccessControlDevicesService _accessControlDevicesService;
+
+  public AccessControlDeviceController(AccessControlDevicesService accessControlDevicesService)
+  {
+    _accessControlDevicesService = accessControlDevicesService;
+  }
 
   [HttpGet]
   public async Task<List<AccessControlDevice>> Get() =>

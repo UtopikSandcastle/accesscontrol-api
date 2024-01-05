@@ -16,15 +16,14 @@ on:
     branches: [ "main" ]
 
 env:
+  DOCKERFILE_PATH: "src/AccessControlAPI"
   # Use docker.io for Docker Hub if empty
   REGISTRY: docker.io
   # github.repository as <account>/<repo>
   IMAGE_NAME: ${{ github.repository }}
 
-
 jobs:
   build:
-
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -32,7 +31,9 @@ jobs:
       # This is used to complete the identity challenge
       # with sigstore/fulcio when running outside of PRs.
       id-token: write
-
+    outputs:
+      image_tags: ${{ steps.meta.outputs.tags }}
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -40,7 +41,7 @@ jobs:
       # Install the cosign tool except on PR
       # https://github.com/sigstore/cosign-installer
       - name: Install cosign
-        if: github.event_name != 'pull_request'
+        # if: github.event_name != 'pull_request'
         uses: sigstore/cosign-installer@6e04d228eb30da1757ee4e1dd75a0ec73a653e06 #v3.1.1
         with:
           cosign-release: 'v2.1.1'
@@ -54,7 +55,7 @@ jobs:
       # Login against a Docker registry except on PR
       # https://github.com/docker/login-action
       - name: Log into registry ${{ env.REGISTRY }}
-        if: github.event_name != 'pull_request'
+        # if: github.event_name != 'pull_request'
         uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
         with:
           registry: ${{ env.REGISTRY }}
@@ -75,8 +76,8 @@ jobs:
         id: build-and-push
         uses: docker/build-push-action@0565240e2d4ab88bba5387d719585280857ece09 # v5.0.0
         with:
-          context: ${{ vars.DOCKERFILE_PATH }}
-          push: ${{ github.event_name != 'pull_request' }}
+          context: ${{ env.DOCKERFILE_PATH }}
+          # push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
@@ -88,7 +89,7 @@ jobs:
       # transparency data even for private images, pass --force to cosign below.
       # https://github.com/sigstore/cosign
       - name: Sign the published Docker image
-        if: ${{ github.event_name != 'pull_request' }}
+        # if: ${{ github.event_name != 'pull_request' }}
         env:
           # https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-an-intermediate-environment-variable
           TAGS: ${{ steps.meta.outputs.tags }}
@@ -96,3 +97,37 @@ jobs:
         # This step uses the identity token to provision an ephemeral certificate
         # against the sigstore community Fulcio instance.
         run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
+
+  openapi:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract OpenAPI configuration file
+        uses: shrink/actions-docker-extract@v3
+        with:
+          image: ${{ needs.build.outputs.image_tags }}
+          path: /App/openapi.json
+          destination: openapi.json
+
+      - name: Upload OpenAPI configuration file to cache
+        uses: actions/cache@v3.3.2
+        with:
+          path: openapi.json
+          key: openapi
+          
+  npm:
+    needs: openapi
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download OpenAPI configuration file from cache
+        uses: actions/cache/restore@v3
+        id: cache
+        with:
+          path: openapi.json
+          key: openapi
+    
+      - name: Generate code
+        uses: hatamiarash7/openapi-generator@v0.2.0
+        with:
+          generator: typescript-angular
+          openapi-file: openapi.json
