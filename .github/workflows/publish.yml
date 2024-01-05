@@ -97,6 +97,7 @@ jobs:
         run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
 
   openapi:
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Extract OpenAPI configuration file
@@ -113,6 +114,7 @@ jobs:
           key: openapi
           
   npm:
+    needs: openapi
     runs-on: ubuntu-latest
     steps:
       - name: Download OpenAPI configuration file from cache
