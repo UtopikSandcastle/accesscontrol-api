@@ -1,6 +1,6 @@
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-env
+# Build project
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build-env
 WORKDIR /App
-
 # Copy everything
 COPY . ./
 # Restore as distinct layers
@@ -8,8 +8,17 @@ RUN dotnet restore
 # Build and publish a release
 RUN dotnet publish -c Release -o out
 
-# Build runtime image
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
+# Generate OpenApi configuration file
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build-openapi
 WORKDIR /App
 COPY --from=build-env /App/out .
-ENTRYPOINT ["dotnet", "UtopikSandcastle.AccessControl.API.dll"]
+RUN dotnet new tool-manifest && \
+    dotnet tool install Swashbuckle.AspNetCore.Cli && \
+    dotnet swagger tofile --output openapi.json `echo $(basename /App/*.deps.json .deps.json)`.dll v1
+
+# Build runtime image
+FROM mcr.microsoft.com/dotnet/aspnet:7.0
+WORKDIR /App
+COPY --from=build-env /App/out .
+COPY --from=build-openapi /App/openapi.json .
+ENTRYPOINT ["bash", "-c", "dotnet `echo $(basename /App/*.deps.json .deps.json)`.dll"]
