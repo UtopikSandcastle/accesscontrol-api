@@ -7,8 +7,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.Configure<SecurityDatabaseSettings>(
-  builder.Configuration.GetSection("SecurityDatabase"));
+builder.Services.Configure<AccessControlDatabaseSettings>(
+  builder.Configuration.GetSection("AccessControlDatabase"));
 
 builder.Services.AddControllers()
   .AddJsonOptions(options =>

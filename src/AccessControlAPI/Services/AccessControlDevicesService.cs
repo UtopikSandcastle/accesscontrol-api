@@ -8,16 +8,16 @@ public class AccessControlDevicesService
 {
   private readonly IMongoCollection<AccessControlDevice> _accesControlDevicesCollection;
 
-  public AccessControlDevicesService(IOptions<SecurityDatabaseSettings> securityDatabaseSettings)
+  public AccessControlDevicesService(IOptions<AccessControlDatabaseSettings> accessControlDatabaseSettings)
   {
     var mongoClient = new MongoClient(
-      securityDatabaseSettings.Value.ConnectionString);
+      accessControlDatabaseSettings.Value.ConnectionString);
 
     var mongoDatabase = mongoClient.GetDatabase(
-      securityDatabaseSettings.Value.DatabaseName);
+      accessControlDatabaseSettings.Value.DatabaseName);
 
     _accesControlDevicesCollection = mongoDatabase.GetCollection<AccessControlDevice>(
-      securityDatabaseSettings.Value.AccessControlDevicesCollectionName);
+      accessControlDatabaseSettings.Value.AccessControlDevicesCollectionName);
   }
 
   public async Task<List<AccessControlDevice>> GetAsync() =>
