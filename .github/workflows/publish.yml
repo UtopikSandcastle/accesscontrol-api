@@ -119,7 +119,7 @@ jobs:
         uses: shrink/actions-docker-extract@v3
         with:
           image: ${{ needs.build.outputs.image_tags }}
-          path: /App/openapi.json
+          path: App/openapi.json
           destination: openapi.json
 
       - name: Upload OpenAPI configuration file to cache
