@@ -4,7 +4,8 @@ WORKDIR /App
 # Copy everything
 COPY . ./
 # Add OpenAPI tools
-RUN dotnet tool install Swashbuckle.AspNetCore.Cli --version 6.5.0
+RUN dotnet new tool-manifest && \
+    dotnet tool install Swashbuckle.AspNetCore.Cli --version 6.5.0
 # Restore as distinct layers
 RUN dotnet restore
 # Build and publish a release
