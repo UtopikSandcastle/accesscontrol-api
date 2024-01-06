@@ -55,7 +55,7 @@ jobs:
       # Login against a Docker registry except on PR
       # https://github.com/docker/login-action
       - name: Log into registry ${{ env.REGISTRY }}
-        # if: github.event_name != 'pull_request'
+        if: github.event.pull_request.head.repo.full_name == github.repository
         uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
         with:
           registry: ${{ env.REGISTRY }}
@@ -63,7 +63,6 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
           # username: ${{ secrets.DOCKERHUB_USERNAME }}
           # password: ${{ secrets.DOCKERHUB_TOKEN }}
-          logout: false
 
       # Extract metadata (tags, labels) for Docker
       # https://github.com/docker/metadata-action
@@ -81,7 +80,7 @@ jobs:
         with:
           context: ${{ env.DOCKERFILE_PATH }}
           # push: ${{ github.event_name != 'pull_request' }}
-          push: true
+          push: ${{  github.event.pull_request.head.repo.full_name == github.repository }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
@@ -103,15 +102,24 @@ jobs:
         run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
 
   openapi:
-    if: github.event_name != 'pull_request'
+    if: github.event.pull_request.head.repo.full_name == github.repository
     needs: build
     runs-on: ubuntu-latest
     steps:
+      # Login against a Docker registry except on PR
+      # https://github.com/docker/login-action
+      - name: Log into registry ${{ env.REGISTRY }}
+        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          
       - name: Extract OpenAPI configuration file
         uses: shrink/actions-docker-extract@v3
         with:
           image: ${{ needs.build.outputs.image_tags }}
-          path: /App/openapi.json
+          path: App/openapi.json
           destination: openapi.json
 
       - name: Upload OpenAPI configuration file to cache
@@ -121,7 +129,7 @@ jobs:
           key: openapi
           
   npm:
-    if: github.event_name != 'pull_request'
+    if: github.event.pull_request.head.repo.full_name == github.repository
     needs: openapi
     runs-on: ubuntu-latest
     steps:
