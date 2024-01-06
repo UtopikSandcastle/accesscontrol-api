@@ -80,7 +80,7 @@ jobs:
         with:
           context: ${{ env.DOCKERFILE_PATH }}
           # push: ${{ github.event_name != 'pull_request' }}
-          push: true
+          push: github.event.pull_request.head.repo.full_name == github.repository
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
@@ -102,7 +102,7 @@ jobs:
         run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
 
   openapi:
-    if: github.event_name != 'pull_request'
+    if: github.event.pull_request.head.repo.full_name == github.repository
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -120,7 +120,7 @@ jobs:
           key: openapi
           
   npm:
-    if: github.event_name != 'pull_request'
+    if: github.event.pull_request.head.repo.full_name == github.repository
     needs: openapi
     runs-on: ubuntu-latest
     steps:
