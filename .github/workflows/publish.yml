@@ -135,6 +135,9 @@ jobs:
     permissions:
       contents: read
       packages: write
+    defaults:
+      run:
+        working-directory: ./typescript-angular-client
     steps:
       - name: Download OpenAPI configuration file from artifact
         uses: actions/download-artifact@v4.1.0
@@ -149,9 +152,6 @@ jobs:
           command-args: --additional-properties=npmName=@utopiksandcastle/accesscontrol-client,npmVersion=1.0.0-dev
 
       - name: Publish Angular Client
-        defaults:
-          run:
-            working-directory: ./typescript-angular-client
         uses: actions/setup-node@v3
         with:
           node-version: 20
