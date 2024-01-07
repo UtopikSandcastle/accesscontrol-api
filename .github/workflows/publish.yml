@@ -139,8 +139,6 @@ jobs:
       run:
         working-directory: ./typescript-angular-client
     steps:
-      - uses: actions/checkout@v3
-      
       - name: Download OpenAPI configuration file from artifact
         uses: actions/download-artifact@v4.1.0
         id: cache
@@ -158,6 +156,7 @@ jobs:
         with:
           node-version: 20
           registry-url: https://npm.pkg.github.com/
+      - run: cat $NPM_CONFIG_USERCONFIG
       - run: npm install
       - run: npm run build
       - run: npm publish dist
