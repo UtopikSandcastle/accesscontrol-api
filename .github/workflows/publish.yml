@@ -128,16 +128,9 @@ jobs:
           name: openapi
           path: openapi.json
           
-  npm:
-    if: github.event.pull_request.head.repo.full_name == github.repository
+  openapi-typescript-angular:
     needs: openapi
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    defaults:
-      run:
-        working-directory: ./typescript-angular-client
     steps:
       - name: Download OpenAPI configuration file from artifact
         uses: actions/download-artifact@v4.1.0
@@ -150,36 +143,40 @@ jobs:
         with:
           generator: typescript-angular
           command-args: --additional-properties=npmName=accesscontrol-client,npmVersion=1.0.0-dev
-
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+  
+      - name: Upload OpenAPI configuration file to artifact
+        uses: actions/upload-artifact@v4.0.0
         with:
-          node-version: 16
+          name: openapi-typescript-angular
+          path: ./typescript-angular-client
+
+  npm:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    needs: openapi-typescript-angular
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Download OpenAPI configuration file from artifact
+        uses: actions/download-artifact@v4.1.0
+        id: cache
+        with:
+          name: openapi-typescript-angular
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
           registry-url: https://npm.pkg.github.com/
-      - run: npm install
-      - run: npm publish
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build package
+        run: npm run build
+
+      - name: Publish to GitHub Packages
+        run: npm publish dist
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
-    
-
-      # - name: Set up Node.js
-      #   uses: actions/setup-node@v3
-      #   with:
-      #     token: ${{ secrets.GITHUB_TOKEN }}
-      #     node-version: 16
-      #     registry-url: https://npm.pkg.github.com/
-      # #   uses: actions/setup-node@v3
-      # #   with:
-      # #     node-version: 18
-      # #     registry-url: https://npm.pkg.github.com/
-
-      # - name: Install dependencies
-      #   run: npm install
-
-      # - name: Build package
-      #   run: npm run build
-
-      # - name: Publish to GitHub Packages
-      #   run: npm publish dist
-      #   env:
-      #     NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
