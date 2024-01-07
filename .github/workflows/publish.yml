@@ -119,14 +119,14 @@ jobs:
         uses: shrink/actions-docker-extract@v3
         with:
           image: ${{ needs.build.outputs.image_tags }}
-          path: App/openapi.yml
-          destination: openapi.yml
+          path: App/openapi.json
+          destination: openapi.json
 
       - name: Upload OpenAPI configuration file to artifact
         uses: actions/upload-artifact@v4.0.0
         with:
           name: openapi
-          path: openapi.yml
+          path: openapi.json
           
   npm:
     if: github.event.pull_request.head.repo.full_name == github.repository
@@ -146,15 +146,15 @@ jobs:
         uses: openapi-generators/openapitools-generator-action@v1.5.0
         with:
           generator: typescript-angular
-          config-file: openapi.yml
 
       - name: Publish Angular Client
         uses: actions/setup-node@v3
         with:
           node-version: 16
           registry-url: https://npm.pkg.github.com/
-      - run: npm ci
-      - run: npm publish
+      - run: |
+          cd typescript-angular-client
+          npm ci
+          npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
-
