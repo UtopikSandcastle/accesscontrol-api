@@ -139,6 +139,8 @@ jobs:
       run:
         working-directory: ./typescript-angular-client
     steps:
+      - uses: actions/checkout@v3
+      
       - name: Download OpenAPI configuration file from artifact
         uses: actions/download-artifact@v4.1.0
         id: cache
@@ -152,8 +154,7 @@ jobs:
           command-args: --additional-properties=npmName=@utopiksandcastle/accesscontrol-client,npmVersion=1.0.0-dev
 
       - name: Publish Angular Client
-        uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+        uses: actions/setup-node@v3
         with:
           node-version: 20
           registry-url: https://npm.pkg.github.com/
