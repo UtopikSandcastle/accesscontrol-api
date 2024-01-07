@@ -146,6 +146,7 @@ jobs:
         uses: openapi-generators/openapitools-generator-action@v1.5.0
         with:
           generator: typescript-angular
+          command-args: --additional-properties=npmName=@utopiksandcastle/accesscontrol-client,npmVersion=1.0.0-dev
 
       - name: Publish Angular Client
         uses: actions/setup-node@v3
@@ -157,7 +158,7 @@ jobs:
           cd typescript-angular*
           ls -la
       - run: yarn install --frozen-lockfile
-      - run: npm build
+      - run: npm run build
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
