@@ -157,8 +157,8 @@ jobs:
           ls -la
           cd typescript-angular*
           ls -la
-      - run: yarn install --frozen-lockfile
-      - run: npm run build
+      - run: npm install
+      # - run: npm run build
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
