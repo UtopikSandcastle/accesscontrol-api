@@ -171,6 +171,7 @@ jobs:
           registry-url: https://npm.pkg.github.com/
           always-auth: true
           scope: '@utopiksandcastle'
+      - run: cat $NPM_CONFIG_USERCONFIG
       - run: npm install
       - run: npm run build
       - run: npm publish dist
