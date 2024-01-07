@@ -119,13 +119,13 @@ jobs:
         uses: shrink/actions-docker-extract@v3
         with:
           image: ${{ needs.build.outputs.image_tags }}
-          path: App/openapi.json
-          destination: openapi.json
+          path: App/openapi.yml
+          destination: openapi.yml
 
       - name: Upload OpenAPI configuration file to cache
         uses: actions/cache@v3.3.2
         with:
-          path: openapi.json
+          path: openapi.yml
           key: openapi
           
   npm:
@@ -140,14 +140,14 @@ jobs:
         uses: actions/cache/restore@v3
         id: cache
         with:
-          path: openapi.json
+          path: openapi.yml
           key: openapi
 
       - name: Generate Angular Client
         uses: openapi-generators/openapitools-generator-action@v1.5.0
         with:
           generator: typescript-angular
-          config-file: openapi.json
+          config-file: openapi.yml
 
       - name: Publish Angular Client
         uses: actions/setup-node@v3

@@ -14,11 +14,11 @@ WORKDIR /App
 COPY --from=build-env /App/out .
 RUN dotnet new tool-manifest && \
     dotnet tool install Swashbuckle.AspNetCore.Cli && \
-    dotnet swagger tofile --output openapi.json `echo $(basename /App/*.deps.json .deps.json)`.dll v1
+    dotnet swagger tofile --yaml --output openapi.yml `echo $(basename /App/*.deps.json .deps.json)`.dll v1
 
 # Build runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:7.0
 WORKDIR /App
 COPY --from=build-env /App/out .
-COPY --from=build-openapi /App/openapi.json .
+COPY --from=build-openapi /App/openapi.yml .
 ENTRYPOINT ["bash", "-c", "dotnet `echo $(basename /App/*.deps.json .deps.json)`.dll"]
