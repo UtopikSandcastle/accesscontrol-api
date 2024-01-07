@@ -27,4 +27,5 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
-      - run: echo ${{ steps.meta.outputs.tags }}
+      - name: Delete Docker image
+        run: docker rmi ${{ steps.meta.outputs.tags }}
