@@ -122,11 +122,11 @@ jobs:
           path: App/openapi.yml
           destination: openapi.yml
 
-      - name: Upload OpenAPI configuration file to cache
-        uses: actions/cache@v3.3.2
+      - name: Upload OpenAPI configuration file to artifact
+        uses: actions/upload-artifact@v4.0.0
         with:
+          name: openapi
           path: openapi.yml
-          key: openapi
           
   npm:
     if: github.event.pull_request.head.repo.full_name == github.repository
@@ -136,12 +136,11 @@ jobs:
       contents: read
       packages: write
     steps:
-      - name: Download OpenAPI configuration file from cache
-        uses: actions/cache/restore@v3
+      - name: Download OpenAPI configuration file from artifact
+        uses: actions/download-artifact@v4.1.0
         id: cache
         with:
-          path: .
-          key: openapi
+          name: openapi
 
       - name: Generate Angular Client
         uses: openapi-generators/openapitools-generator-action@v1.5.0
