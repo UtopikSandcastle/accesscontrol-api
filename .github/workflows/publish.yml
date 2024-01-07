@@ -119,29 +119,41 @@ jobs:
         uses: shrink/actions-docker-extract@v3
         with:
           image: ${{ needs.build.outputs.image_tags }}
-          path: App/openapi.json
-          destination: openapi.json
+          path: App/openapi.yml
+          destination: openapi.yml
 
-      - name: Upload OpenAPI configuration file to cache
-        uses: actions/cache@v3.3.2
+      - name: Upload OpenAPI configuration file to artifact
+        uses: actions/upload-artifact@v4.0.0
         with:
-          path: openapi.json
-          key: openapi
+          name: openapi
+          path: openapi.yml
           
   npm:
     if: github.event.pull_request.head.repo.full_name == github.repository
     needs: openapi
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
-      - name: Download OpenAPI configuration file from cache
-        uses: actions/cache/restore@v3
+      - name: Download OpenAPI configuration file from artifact
+        uses: actions/download-artifact@v4.1.0
         id: cache
         with:
-          path: openapi.json
-          key: openapi
-    
-      - name: Generate code
-        uses: hatamiarash7/openapi-generator@v0.2.0
+          name: openapi
+
+      - name: Generate Angular Client
+        uses: openapi-generators/openapitools-generator-action@v1.5.0
         with:
           generator: typescript-angular
-          openapi-file: openapi.json
+          config-file: openapi.yml
+
+      - name: Publish Angular Client
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          registry-url: https://npm.pkg.github.com/
+      - run: npm ci
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
