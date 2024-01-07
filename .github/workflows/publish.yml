@@ -151,7 +151,11 @@ jobs:
           generator: typescript-angular
           command-args: --additional-properties=npmName=accesscontrol-client,npmVersion=1.0.0-dev
 
-      # - name: Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          node-version: 16
       #   uses: actions/setup-node@v3
       #   with:
       #     node-version: 18
