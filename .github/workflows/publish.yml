@@ -154,7 +154,7 @@ jobs:
           registry-url: https://npm.pkg.github.com/
       - run: |
           cd typescript-angular-client
-          npm ci
+          yarn install --frozen-lockfile
           npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
