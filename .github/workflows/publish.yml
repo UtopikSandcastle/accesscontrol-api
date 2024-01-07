@@ -173,6 +173,6 @@ jobs:
       - run: npm config list
       - run: npm install
       - run: npm run build
-      - run: npm publish dist
+      - run: npm publish dist --loglevel verbose
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
