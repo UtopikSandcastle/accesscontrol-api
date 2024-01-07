@@ -140,7 +140,7 @@ jobs:
         uses: actions/cache/restore@v3
         id: cache
         with:
-          path: openapi.yml
+          path: .
           key: openapi
 
       - name: Generate Angular Client
