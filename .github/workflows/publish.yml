@@ -119,22 +119,18 @@ jobs:
         uses: shrink/actions-docker-extract@v3
         with:
           image: ${{ needs.build.outputs.image_tags }}
-          path: App/openapi.yml
-          destination: openapi.yml
+          path: App/openapi.json
+          destination: openapi.json
 
       - name: Upload OpenAPI configuration file to artifact
         uses: actions/upload-artifact@v4.0.0
         with:
           name: openapi
-          path: openapi.yml
+          path: openapi.json
           
-  npm:
-    if: github.event.pull_request.head.repo.full_name == github.repository
+  openapi-typescript-angular:
     needs: openapi
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
     steps:
       - name: Download OpenAPI configuration file from artifact
         uses: actions/download-artifact@v4.1.0
@@ -146,14 +142,37 @@ jobs:
         uses: openapi-generators/openapitools-generator-action@v1.5.0
         with:
           generator: typescript-angular
-          config-file: openapi.yml
-
-      - name: Publish Angular Client
-        uses: actions/setup-node@v3
+          command-args: --additional-properties=npmName=accesscontrol-client,npmVersion=1.0.0-dev
+  
+      - name: Upload OpenAPI configuration file to artifact
+        uses: actions/upload-artifact@v4.0.0
         with:
-          node-version: 16
+          name: openapi-typescript-angular
+          path: ./typescript-angular-client
+
+  npm-publish:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    needs: openapi-typescript-angular
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Download OpenAPI configuration file from artifact
+        uses: actions/download-artifact@v4.1.0
+        id: cache
+        with:
+          name: openapi-typescript-angular
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
           registry-url: https://npm.pkg.github.com/
-      - run: npm ci
-      - run: npm publish
+          always-auth: true
+          scope: '@utopiksandcastle'
+      - run: npm install
+      - run: npm run build
+      - run: npm publish dist
         env:
-          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
