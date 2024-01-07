@@ -152,9 +152,9 @@ jobs:
           command-args: --additional-properties=npmName=@utopiksandcastle/accesscontrol-client,npmVersion=1.0.0-dev
 
       - name: Publish Angular Client
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
-          node-version: 20
+          node-version: 16
           registry-url: https://npm.pkg.github.com/
       - run: cat $NPM_CONFIG_USERCONFIG
       - run: npm install
