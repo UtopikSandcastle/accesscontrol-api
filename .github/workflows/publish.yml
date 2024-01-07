@@ -55,7 +55,7 @@ jobs:
       # Login against a Docker registry except on PR
       # https://github.com/docker/login-action
       - name: Log into registry ${{ env.REGISTRY }}
-        if: github.event.pull_request.head.repo.full_name == github.repository
+        if: github.event.pull_request.merged || github.event.pull_request.head.repo.full_name == github.repository
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
@@ -80,7 +80,7 @@ jobs:
         with:
           context: ${{ env.DOCKERFILE_PATH }}
           # push: ${{ github.event_name != 'pull_request' }}
-          push: ${{  github.event.pull_request.head.repo.full_name == github.repository }}
+          push: ${{ github.event.pull_request.merged || github.event.pull_request.head.repo.full_name == github.repository }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
@@ -103,7 +103,7 @@ jobs:
         run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
 
   openapi:
-    if: github.event.pull_request.head.repo.full_name == github.repository
+    if: github.event.pull_request.merged || github.event.pull_request.head.repo.full_name == github.repository
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -152,7 +152,6 @@ jobs:
           path: ./typescript-angular-client
 
   npm-publish:
-    if: github.event.pull_request.head.repo.full_name == github.repository
     needs: openapi-typescript-angular
     runs-on: ubuntu-latest
     permissions:
