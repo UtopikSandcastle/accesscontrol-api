@@ -31,8 +31,8 @@ jobs:
         env:
           TOKEN: ${{ github.token }}
           OWNER: ${{ github.repository_owner }}
-          IMAGE: ${{ steps.meta.outputs.labels.org.opencontainers.image.title }}
-          TAG: ${{ steps.meta.outputs.labels.org.opencontainers.image.version }}
+          IMAGE: ${{ steps.meta.outputs.labels['org.opencontainers.image.title'] }}
+          TAG: ${{ steps.meta.outputs.labels['org.opencontainers.image.version'] }}
         run: |
           echo "--"
           curl -L \
