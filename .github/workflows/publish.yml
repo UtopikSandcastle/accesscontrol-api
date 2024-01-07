@@ -150,7 +150,8 @@ jobs:
 
       - name: Publish Angular Client
         defaults:
-          working-directory: ./typescript-angular-client
+          run:
+            working-directory: ./typescript-angular-client
         uses: actions/setup-node@v3
         with:
           node-version: 20
