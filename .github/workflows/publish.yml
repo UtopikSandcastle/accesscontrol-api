@@ -149,16 +149,13 @@ jobs:
           command-args: --additional-properties=npmName=@utopiksandcastle/accesscontrol-client,npmVersion=1.0.0-dev
 
       - name: Publish Angular Client
+        working-directory: ./typescript-angular-client
         uses: actions/setup-node@v3
         with:
           node-version: 20
           registry-url: https://npm.pkg.github.com/
-      - run: |
-          ls -la
-          cd typescript-angular*
-          ls -la
       - run: npm install
-      # - run: npm run build
-      - run: npm publish
+      - run: npm run build
+      - run: npm publish dist
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
