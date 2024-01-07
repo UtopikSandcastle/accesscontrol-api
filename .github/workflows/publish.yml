@@ -24,7 +24,6 @@ env:
 
 jobs:
   build:
-    if: false #TODO: DEBUG
     runs-on: ubuntu-latest
     permissions:
       contents: read
