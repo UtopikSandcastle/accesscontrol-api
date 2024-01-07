@@ -36,5 +36,5 @@ jobs:
           echo "--"
           curl -H "Authorization: token $TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/orgs/$OWNER/packages/container/$IMAGE_NAME/versions"
+            "https://api.github.com/orgs/$OWNER/packages?package_type=container"
           echo "--"
