@@ -150,7 +150,7 @@ jobs:
           name: openapi-typescript-angular
           path: ./typescript-angular-client
 
-  npm:
+  npm-publish:
     if: github.event.pull_request.head.repo.full_name == github.repository
     needs: openapi-typescript-angular
     runs-on: ubuntu-latest
@@ -169,14 +169,8 @@ jobs:
         with:
           node-version: 18
           registry-url: https://npm.pkg.github.com/
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build package
-        run: npm run build
-
-      - name: Publish to GitHub Packages
-        run: npm publish dist
+      - run: npm install
+      - run: npm run build
+      - run: npm publish dist
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
