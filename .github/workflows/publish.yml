@@ -149,16 +149,21 @@ jobs:
         uses: openapi-generators/openapitools-generator-action@v1.5.0
         with:
           generator: typescript-angular
-          command-args: --additional-properties=npmName=@utopiksandcastle/accesscontrol-client,npmVersion=1.0.0-dev
+          command-args: --additional-properties=npmName=accesscontrol-client,npmVersion=1.0.0-dev
 
-      - name: Publish Angular Client
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 20
           registry-url: https://npm.pkg.github.com/
-      - run: cat $NPM_CONFIG_USERCONFIG
-      - run: npm install
-      - run: npm run build
-      - run: npm publish dist
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build package
+        run: npm run build
+
+      - name: Publish to GitHub Packages
+        run: npm publish dist
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
