@@ -150,7 +150,7 @@ jobs:
       - name: Publish Angular Client
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 20
           registry-url: https://npm.pkg.github.com/
       - run: |
           cd typescript-angular-client
