@@ -164,6 +164,8 @@ jobs:
         run: npm run build
 
       - name: Publish to GitHub Packages
-        run: npm publish dist
+        run: |
+          cat $NPM_CONFIG_USERCONFIG
+          npm publish dist
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
