@@ -2,7 +2,8 @@ name: Clean Up
 
 on:
   pull_request:
-    types: [closed]
+    branches: [ "main" ]
+    # types: [closed]
 
 env:
   REGISTRY: ghcr.io
