@@ -150,6 +150,7 @@ jobs:
           path: ./typescript-angular-client
 
   npm-publish:
+    if: false # Doesn`t works
     needs: openapi-typescript-angular
     runs-on: ubuntu-latest
     permissions:
