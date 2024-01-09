@@ -25,7 +25,7 @@ jobs:
         env:
           TOKEN: ${{ github.token }}
           ORG: ${{ github.repository_owner }}
-          PACKAGE_NAME: ${IMAGE_NAME%%/*}
+          PACKAGE_NAME: ${IMAGE_NAME#*/}
           PACKAGE_VERSION: pr-${{ github.event.pull_request.number }}
         run: |
           # Fetch open PRs
