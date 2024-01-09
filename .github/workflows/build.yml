@@ -1,4 +1,4 @@
-name: Docker
+name: build
 
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
@@ -21,7 +21,8 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build:
+  docker:
+    if: false #TODO: Remove: Debug
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -39,7 +40,7 @@ jobs:
       # Install the cosign tool except on PR
       # https://github.com/sigstore/cosign-installer
       - name: Install cosign
-        if: github.event_name != 'pull_request'
+        if: startsWith(github.ref, 'refs/heads/v') && contains(github.ref, '.')
         uses: sigstore/cosign-installer@v3
         with:
           cosign-release: 'v2.1.1'
@@ -53,7 +54,7 @@ jobs:
       # Login against a Docker registry except on PR
       # https://github.com/docker/login-action
       - name: Log into registry ${{ env.REGISTRY }}
-        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+        if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
@@ -77,8 +78,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ${{ env.DOCKERFILE_PATH }}
-          # push: ${{ github.event_name != 'pull_request' }}
-          push: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+          push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
@@ -101,8 +101,8 @@ jobs:
         run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
 
   openapi:
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-    needs: build
+    if: github.event_name != 'pull_request'
+    needs: docker
     runs-on: ubuntu-latest
     steps:
       # Login against a Docker registry except on PR
@@ -150,6 +150,7 @@ jobs:
           path: ./typescript-angular-client
 
   npm-publish:
+    if: false # Doesn`t works
     needs: openapi-typescript-angular
     runs-on: ubuntu-latest
     permissions:
