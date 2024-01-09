@@ -30,20 +30,14 @@ jobs:
           PACKAGE_NAME=${IMAGE_NAME#*/}
 
           # Fetch open PRs
-          open_prs=$(curl -s \
+          closed_prs=$(curl -s \
                       -H "Authorization: token $TOKEN" \
                       -H "Accept: application/vnd.github+json" \
                       -H "X-GitHub-Api-Version: 2022-11-28" \
                       "https://api.github.com/repos/$ORG/$PACKAGE_NAME/pulls?state=closed" | jq -r '.[].number')
 
-          # Check if there are open PRs
-          if [ "$(echo "$prs" | jq -r '. | length')" -eq 0 ]; then
-            echo "No open pull requests."
-            exit 0  # Exit the script if no open PRs are found
-          fi
-
           # Convert open PRs to an array
-          open_prs_array=($open_prs)
+          closed_prs_array=($closed_prs)
 
           # Fetch all tags for the GitHub Package
           tags_response=$(curl -s \
@@ -51,16 +45,15 @@ jobs:
                       -H "Accept: application/vnd.github+json" \
                       -H "X-GitHub-Api-Version: 2022-11-28" \
                       "https://api.github.com/orgs/$ORG/packages/container/$PACKAGE_NAME/versions")
-          echo $tags_response
 
           # Loop over each tag
           echo "$tags_response" | jq -c '.[] | {id: .id, tags: .metadata.container.tags[]}' | while read -r tag_info; do
             tag=$(echo "$tag_info" | jq -r '.tags')
             version_id=$(echo "$tag_info" | jq -r '.id')
 
-            # Check if tag starts with 'pr-' and is not in open PRs
-            if [[ $tag == pr-* ]] && [[ ! " ${open_prs_array[@]} " =~ " ${tag:3} " ]]; then
-              echo "Deleting Docker image with tag $tag as it has no open PR"
+            # Check if tag starts with 'pr-' and is in closed PRs
+            if [[ $tag == pr-* ]] && [[ " ${closed_prs_array[@]} " =~ " ${tag:3} " ]]; then
+              echo "Deleting Docker image with tag $tag corresponding to closed PR #$tag"
 
               # Delete the Docker image version
               curl -s \
