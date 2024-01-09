@@ -37,6 +37,7 @@ jobs:
 
           # Convert open PRs to an array
           open_prs_array=($open_prs)
+          echo open_prs_array
 
           # Fetch all tags for the GitHub Package
           tags_response=$(curl -s \
@@ -44,21 +45,22 @@ jobs:
                       -H "Accept: application/vnd.github+json" \
                       -H "X-GitHub-Api-Version: 2022-11-28" \
                       "https://api.github.com/orgs/$ORG/packages/container/$IMAGE_NAME/versions")
-          
-          # Loop over each tag
-          echo "$tags_response" | jq -c '.[] | {id: .id, tags: .metadata.container.tags[]}' | while read -r tag_info; do
-            tag=$(echo "$tag_info" | jq -r '.tags')
-            version_id=$(echo "$tag_info" | jq -r '.id')
+          echo tags_response
 
-            # Check if tag starts with 'pr-' and is not in open PRs
-            if [[ $tag == pr-* ]] && [[ ! " ${open_prs_array[@]} " =~ " ${tag:3} " ]]; then
-              echo "Deleting Docker image with tag $tag as it has no open PR"
+          # # Loop over each tag
+          # echo "$tags_response" | jq -c '.[] | {id: .id, tags: .metadata.container.tags[]}' | while read -r tag_info; do
+          #   tag=$(echo "$tag_info" | jq -r '.tags')
+          #   version_id=$(echo "$tag_info" | jq -r '.id')
 
-              # Delete the Docker image version
-              curl -s \
-                  -H "Authorization: token $TOKEN" \
-                  -H "Accept: application/vnd.github+json" \
-                  -H "X-GitHub-Api-Version: 2022-11-28" \
-                   "https://api.github.com/users/$OWNER/packages/container/$IMAGE_NAME/versions/$version_id"
-            fi
-          done
+          #   # Check if tag starts with 'pr-' and is not in open PRs
+          #   if [[ $tag == pr-* ]] && [[ ! " ${open_prs_array[@]} " =~ " ${tag:3} " ]]; then
+          #     echo "Deleting Docker image with tag $tag as it has no open PR"
+
+          #     # Delete the Docker image version
+          #     curl -s \
+          #         -H "Authorization: token $TOKEN" \
+          #         -H "Accept: application/vnd.github+json" \
+          #         -H "X-GitHub-Api-Version: 2022-11-28" \
+          #          "https://api.github.com/users/$OWNER/packages/container/$IMAGE_NAME/versions/$version_id"
+          #   fi
+          # done
