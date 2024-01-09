@@ -22,7 +22,6 @@ env:
 
 jobs:
   docker:
-    if: false #TODO: Remove: Debug
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -54,7 +53,6 @@ jobs:
       # Login against a Docker registry except on PR
       # https://github.com/docker/login-action
       - name: Log into registry ${{ env.REGISTRY }}
-        if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
@@ -78,7 +76,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ${{ env.DOCKERFILE_PATH }}
-          push: ${{ github.event_name != 'pull_request' }}
+          push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
@@ -101,7 +99,6 @@ jobs:
         run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
 
   openapi:
-    if: github.event_name != 'pull_request'
     needs: docker
     runs-on: ubuntu-latest
     steps:
@@ -117,7 +114,7 @@ jobs:
       - name: Extract OpenAPI configuration file
         uses: shrink/actions-docker-extract@v3
         with:
-          image: ${{ needs.build.outputs.image_tags }}
+          image: ${{ needs.docker.outputs.image_tags }}
           path: App/openapi.json
           destination: openapi.json
 
