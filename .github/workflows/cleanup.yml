@@ -1,10 +1,8 @@
 name: Clean Up
 
 on:
-  # schedule:
-  #   - cron: '0 0 * * *'  # Run daily, modify as needed
-  pull_request:
-    branches: [ "main" ]
+  schedule:
+    - cron: '0 0 * * *'  # Run daily, modify as needed
 
 env:
   REGISTRY: ghcr.io
