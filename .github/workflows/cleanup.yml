@@ -2,7 +2,7 @@ name: Clean Up
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # Run daily, modify as needed
+    - cron: '0 0 * * 0'  # Run at 00:00 on Sunday.
 
 env:
   REGISTRY: ghcr.io
