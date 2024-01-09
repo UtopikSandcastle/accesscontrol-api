@@ -102,7 +102,7 @@ jobs:
 
   openapi:
     if: github.event_name != 'pull_request'
-    needs: build
+    needs: docker
     runs-on: ubuntu-latest
     steps:
       # Login against a Docker registry except on PR
