@@ -22,7 +22,6 @@ env:
 
 jobs:
   docker:
-    if: false #TODO: Remove: Debug
     runs-on: ubuntu-latest
     permissions:
       contents: read
