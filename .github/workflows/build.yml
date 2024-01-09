@@ -22,6 +22,7 @@ env:
 
 jobs:
   docker:
+    if: false #TODO: Remove: Debug
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -100,8 +101,7 @@ jobs:
         run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
 
   openapi:
-    # if: github.event_name != 'pull_request'
-    if: false #TODO: Remove: Debug
+    if: github.event_name != 'pull_request'
     needs: docker
     runs-on: ubuntu-latest
     steps:

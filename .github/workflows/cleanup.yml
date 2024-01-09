@@ -1,10 +1,10 @@
 name: Clean Up
 
 on:
-  workflow_run:
-    workflows: ["build"]
-    types:
-      - completed
+  # schedule:
+  #   - cron: '0 0 * * *'  # Run daily, modify as needed
+  pull_request:
+    branches: [ "main" ]
 
 env:
   REGISTRY: ghcr.io
@@ -63,4 +63,3 @@ jobs:
                    "https://api.github.com/users/$OWNER/packages/container/$IMAGE_NAME/versions/$version_id"
             fi
           done
-          
