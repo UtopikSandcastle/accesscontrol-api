@@ -9,7 +9,7 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  cleanup:
+  cleanup-docker:
     runs-on: ubuntu-latest
     steps:
       # - name: Log into registry ${{ env.REGISTRY }}
@@ -61,3 +61,19 @@ jobs:
                    "https://api.github.com/orgs/$ORG/packages/container/$PACKAGE_NAME/versions/$version_id"
             fi
           done
+
+  cleanup-npm:
+    runs-on: ubuntu-latest
+    env:
+      PACKAGE_NAME: "@utopiksandcastle/accesscontrol-client"
+      PACKAGE_VERSION: pr-${{ github.event.pull_request.number }}
+    steps:
+      - name: Set up Node.js
+        uses: actions/setup-node@v4.0.1
+        with:
+          node-version: 18
+      - run: |
+         echo //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }} > .npmrc
+         echo @utopiksandcastle:registry=https://registry.npmjs.org/ >> .npmrc
+      - run: |
+          npm unpublish $PACKAGE_NAME@$PACKAGE_VERSION
