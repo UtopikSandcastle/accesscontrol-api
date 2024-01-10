@@ -36,7 +36,7 @@ jobs:
             VERSION_SUFFIX="-pr.${{ github.event.pull_request.number }}"
           elif [ "${{ github.event_name }}" = "push" ] && [[ ${{ github.ref }} == refs/tags/* ]]; then
             TAG_NAME=$(echo "${{ github.ref }}" | sed 's|refs/tags/v||')
-            VERSION_SUFFIX="$TAG_NAME"
+            BASE_VERSION="$TAG_NAME"
           elif [ "${{ github.event_name }}" = "push" ]; then
             BRANCH_NAME=$(echo "${{ github.ref }}" | sed 's|refs/heads/||' | sed 's|/|-|g')
             VERSION_SUFFIX="-$BRANCH_NAME"
@@ -44,14 +44,6 @@ jobs:
 
           FINAL_VERSION="$BASE_VERSION$VERSION_SUFFIX"
           echo "npm_version=$FINAL_VERSION" >> $GITHUB_OUTPUT
-        # run: |
-        #   if [ "${{ github.event_name }}" == "pull_request" ]; then
-        #     echo "version=0.0.0-pr.${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
-        #   elif [ startsWith(github.ref, 'refs/heads/v') && contains(github.ref, '.') ]
-        #     echo "version=${{ github.ref }} | sed 's|refs/heads/||'" >> $GITHUB_OUTPUT
-        #   else
-        #     echo "version=0.0.0-${{ github.ref }} | sed 's|refs/heads/||'" >> $GITHUB_OUTPUT
-        #   fi
 
   docker:
     needs: setup
@@ -103,6 +95,12 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
 
       # Build and push Docker image with Buildx
       # https://github.com/docker/build-push-action
@@ -158,8 +156,23 @@ jobs:
       packages: write
     env:
       PACKAGE_NAME: "@utopiksandcastle/accesscontrol-client"
-      PACKAGE_VERSION: ${{ needs.setup.outputs.npm_version }}
     steps:
+      - run: |
+          BASE_VERSION="0.0.0"
+          VERSION_SUFFIX=""
+  
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            VERSION_SUFFIX="-pr.${{ github.event.pull_request.number }}"
+          elif [ "${{ github.event_name }}" = "push" ] && [[ ${{ github.ref }} == refs/tags/* ]]; then
+            TAG_NAME=$(echo "${{ github.ref }}" | sed 's|refs/tags/v||')
+            BASE_VERSION="$TAG_NAME"
+          elif [ "${{ github.event_name }}" = "push" ]; then
+            BRANCH_NAME=$(echo "${{ github.ref }}" | sed 's|refs/heads/||' | sed 's|/|-|g')
+            VERSION_SUFFIX="-$BRANCH_NAME"
+          fi
+  
+          PACKAGE_VERSION="$BASE_VERSION$VERSION_SUFFIX"
+    
       - name: Download OpenAPI configuration file from artifact
         uses: actions/download-artifact@v4.1.0
         with:
@@ -192,7 +205,7 @@ jobs:
           if [[ "${{ github.ref }}" == refs/heads/v* ]] && [[ "${{ github.ref }}" == *.* ]]; then
             npm publish --access public
           else
-            # npm unpublish $PACKAGE_NAME@$PACKAGE_VERSION
+            npm unpublish $PACKAGE_NAME@$PACKAGE_VERSION
             npm publish --access public --tag dev --verbose
           fi
         # env:
