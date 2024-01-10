@@ -160,9 +160,8 @@ jobs:
           # cache: 'npm'
           # scope: '@utopiksandcastle'
       - run: |
-         echo registry=https://registry.npmjs.org/ > .npmrc
-         echo always-auth=true >> .npmrc
-         echo _authToken=${{ secrets.NPM_TOKEN }} >> .npmrc 
+         echo @fontawesome:registry=https://registry.npmjs.org/ > .npmrc
+         echo //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }} >> .npmrc 
       - run: cat package.json
       - run: npm install
       - run: npm run build
