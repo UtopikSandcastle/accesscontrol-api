@@ -178,6 +178,8 @@ jobs:
       - run: npm config ls -l
       # - run: cat /opt/hostedtoolcache/node/18.19.0/x64/etc/npmrc
       # - run: cat /home/runner/.npmrc
+      - run: npm adduser
+      - run: npm whoami
       - run: npm install
       - run: npm run build
       - run: npm publish dist
