@@ -18,9 +18,24 @@ env:
   # Use docker.io for Docker Hub if empty
   REGISTRY: ghcr.io
   # github.repository as <account>/<repo>
-  IMAGE_NAME: ${{ github.repository }}
+  DOCKER_IMAGE: ${{ github.repository }}
 
 jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.set_vars.outputs.version }}
+    steps:
+      - name: Set version
+        id: set_vars
+        run: |
+          echo "::set-output name=version::"
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            echo pr-${{ github.event.pull_request.number }}
+          else
+            echo ${{ github.ref }} | sed 's|refs/heads/||'
+          fi
+
   docker:
     runs-on: ubuntu-latest
     permissions:
@@ -69,7 +84,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ env.DOCKER_IMAGE }}
 
       # Build and push Docker image with Buildx
       # https://github.com/docker/build-push-action
@@ -142,7 +157,7 @@ jobs:
         uses: openapi-generators/openapitools-generator-action@v1.5.0
         with:
           generator: typescript-angular
-          command-args: --additional-properties=npmName=@utopiksandcastle/accesscontrol-client,npmVersion=1.0.0-dev
+          command-args: --additional-properties=npmName=@utopiksandcastle/accesscontrol-client,npmVersion=${{ needs.setup.outputs.version }}
   
       - name: Upload OpenAPI configuration file to artifact
         uses: actions/upload-artifact@v4.0.0
@@ -160,6 +175,8 @@ jobs:
         with:
           node-version: 18
       - run: npm config ls -l
+      - run: cat /opt/hostedtoolcache/node/18.19.0/x64/etc/npmrc
+      - run: cat /home/runner/.npmrc
       - run: npm install
       - run: npm run build
       - run: npm publish dist
