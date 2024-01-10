@@ -192,7 +192,7 @@ jobs:
           if [[ "${{ github.ref }}" == refs/heads/v* ]] && [[ "${{ github.ref }}" == *.* ]]; then
             npm publish --access public
           else
-            npm unpublish $PACKAGE_NAME@$PACKAGE_VERSION
+            # npm unpublish $PACKAGE_NAME@$PACKAGE_VERSION
             npm publish --access public --tag dev --verbose
           fi
         # env:
