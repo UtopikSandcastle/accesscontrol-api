@@ -178,14 +178,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 18
-          # cache: 'npm'
-          scope: '@utopiksandcastle'
-          token: ${{ secrets.NPM_TOKEN }}
-          always-auth: true
+          cache: 'npm'
       - run: |
          echo @utopiksandcastle:registry=https://registry.npmjs.org/ > .npmrc
          echo //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }} >> .npmrc 
-      # - run: cat package.json
+      - run: cat package.json
       - run: npm install
       - run: npm run build
       - run: npm publish --access public
