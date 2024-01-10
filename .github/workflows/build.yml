@@ -24,10 +24,10 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.setup.outputs.version }}
+      version: ${{ steps.set_ver.outputs.version }}
     steps:
       - name: Set version
-        id: setup
+        id: set_ver
         run: |
           if [ "${{ github.event_name }}" == "pull_request" ]; then
             echo "version=pr-${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
@@ -142,7 +142,7 @@ jobs:
           path: openapi.json
           
   openapi-typescript-angular:
-    needs: openapi
+    needs: [setup, openapi]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -157,7 +157,7 @@ jobs:
         uses: openapi-generators/openapitools-generator-action@v1.5.0
         with:
           generator: typescript-angular
-          command-args: --additional-properties=npmName=@utopiksandcastle/accesscontrol-client,npmVersion=${{ needs.setup.outputs.version }}
+          command-args: --additional-properties=npmName=accesscontrol-client,npmVersion=${{ needs.setup.outputs.version }}
   
       # - name: Upload OpenAPI configuration file to artifact
       #   uses: actions/upload-artifact@v4.0.0
@@ -178,10 +178,10 @@ jobs:
         with:
           node-version: 18
           # cache: 'npm'
-          scope: '@utopiksandcastle'
+          # scope: '@utopiksandcastle'
       - run: cat package.json
       - run: npm install
       - run: npm run build
-      - run: npm publish dist
+      - run: npm publish dist --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
