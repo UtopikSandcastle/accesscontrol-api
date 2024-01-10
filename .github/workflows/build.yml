@@ -186,7 +186,7 @@ jobs:
       - run: npm install
       - run: npm run build
       - run: |
-          if [ startsWith(github.ref, 'refs/heads/v') && contains(github.ref, '.') ]; then
+          if [[ "${{ github.ref }}" == refs/heads/v* ]] && [[ "${{ github.ref }}" == *.* ]]; then
             npm publish --access public
           else
             npm publish --force --access public
