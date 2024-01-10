@@ -127,10 +127,12 @@ jobs:
   openapi-typescript-angular:
     needs: openapi
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Download OpenAPI configuration file from artifact
         uses: actions/download-artifact@v4.1.0
-        id: cache
         with:
           name: openapi
 
@@ -146,16 +148,8 @@ jobs:
           name: openapi-typescript-angular
           path: ./typescript-angular-client
 
-  npm-publish:
-    needs: openapi-typescript-angular
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    steps:
       - name: Download OpenAPI configuration file from artifact
         uses: actions/download-artifact@v4.1.0
-        id: cache
         with:
           name: openapi-typescript-angular
 
@@ -170,4 +164,4 @@ jobs:
       - run: npm run build
       - run: npm publish dist --loglevel verbose
         env:
-          NODE_AUTH_TOKEN: ${{ Secrets.WORKFLOW_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
