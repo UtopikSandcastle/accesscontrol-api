@@ -156,6 +156,9 @@ jobs:
     permissions:
       contents: read
       packages: write
+    env:
+      PACKAGE_NAME: "@utopiksandcastle/accesscontrol-client"
+      PACKAGE_VERSION: ${{ needs.setup.outputs.npm_version }}
     steps:
       - name: Download OpenAPI configuration file from artifact
         uses: actions/download-artifact@v4.1.0
@@ -163,9 +166,6 @@ jobs:
           name: openapi
       
       - name: Generate Angular Client
-        env:
-          PACKAGE_NAME: "@utopiksandcastle/accesscontrol-client"
-          PACKAGE_VERSION: ${{ needs.setup.outputs.npm_version }}
         uses: openapi-generators/openapitools-generator-action@v1.5.0
         with:
           generator: typescript-angular
@@ -192,7 +192,8 @@ jobs:
           if [[ "${{ github.ref }}" == refs/heads/v* ]] && [[ "${{ github.ref }}" == *.* ]]; then
             npm publish --access public
           else
-            npm publish --force --access public --tag dev --verbose
+            npm unpublish $PACKAGE_NAME@$PACKAGE_VERSION
+            npm publish --access public --tag dev --verbose
           fi
         # env:
         #   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
