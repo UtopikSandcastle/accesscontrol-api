@@ -170,7 +170,7 @@ jobs:
       #   with:
       #     name: openapi-typescript-angular
       - run: |
-          mv -r ./typescript-angular-client .
+          mv ./typescript-angular-client/* .
           rm ./typescript-angular-client
 
       - name: Set up Node.js
@@ -179,10 +179,7 @@ jobs:
           node-version: 18
           cache: 'npm'
           scope: '@utopiksandcastle'
-      - run: npm config ls -l
-      # - run: cat /opt/hostedtoolcache/node/18.19.0/x64/etc/npmrc
-      # - run: cat /home/runner/.npmrc
-      # - run: npm whoami
+      - run: cat package.json
       - run: npm install
       - run: npm run build
       - run: npm publish dist
