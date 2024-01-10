@@ -72,7 +72,7 @@ jobs:
       - name: Log into DOCKER_REGISTRY ${{ env.DOCKER_REGISTRY }}
         uses: docker/login-action@v3
         with:
-          DOCKER_REGISTRY: ${{ env.DOCKER_REGISTRY }}
+          registry: ${{ env.DOCKER_REGISTRY }}
           # username: ${{ github.actor }}
           # password: ${{ secrets.GITHUB_TOKEN }}
           username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -171,14 +171,15 @@ jobs:
           name: openapi-typescript-angular
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v3
         with:
           node-version: 18
+          cache: 'npm'
           scope: '@utopiksandcastle'
       - run: npm config ls -l
       # - run: cat /opt/hostedtoolcache/node/18.19.0/x64/etc/npmrc
       # - run: cat /home/runner/.npmrc
-      - run: npm whoami
+      # - run: npm whoami
       - run: npm install
       - run: npm run build
       - run: npm publish dist
