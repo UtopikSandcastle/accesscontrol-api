@@ -180,6 +180,7 @@ jobs:
           node-version: 18
           token: ${{ secrets.NPM_TOKEN }}
           registry-url: https://registry.npmjs.org
+          scope: '@utopiksandcastle'
       # - run: |
       #    echo @utopiksandcastle:registry=https://registry.npmjs.org/ > .npmrc
       #    echo //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }} >> .npmrc
