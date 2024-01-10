@@ -171,7 +171,7 @@ jobs:
       #     name: openapi-typescript-angular
       - run: |
           mv ./typescript-angular-client/* .
-          rm ./typescript-angular-client
+          rm -rf ./typescript-angular-client
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
