@@ -33,7 +33,7 @@ jobs:
           VERSION_SUFFIX=""
 
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            VERSION_SUFFIX="-pr"
+            VERSION_SUFFIX="-pr.${{ github.event.pull_request.number }}"
           elif [ "${{ github.event_name }}" = "push" ] && [[ ${{ github.ref }} == refs/tags/* ]]; then
             TAG_NAME=$(echo "${{ github.ref }}" | sed 's|refs/tags/v||')
             VERSION_SUFFIX="$TAG_NAME"
@@ -166,7 +166,7 @@ jobs:
         uses: openapi-generators/openapitools-generator-action@v1.5.0
         with:
           generator: typescript-angular
-          command-args: --additional-properties=npmName=accesscontrol-client,npmVersion=${{ needs.setup.outputs.npm_version }}
+          command-args: --additional-properties=npmName=@utopiksandcastle/accesscontrol-client,npmVersion=${{ needs.setup.outputs.npm_version }}
       - run: |
           mv ./typescript-angular-client/* .
           rm -rf ./typescript-angular-client
@@ -176,11 +176,11 @@ jobs:
         with:
           node-version: 18
           # cache: 'npm'
-          # scope: '@utopiksandcastle'
-      - run: |
-         echo @fontawesome:registry=https://registry.npmjs.org/ > .npmrc
-         echo //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }} >> .npmrc 
-      - run: cat package.json
+          scope: '@utopiksandcastle'
+      # - run: |
+      #    echo @utopiksandcastle:registry=https://registry.npmjs.org/ > .npmrc
+      #    echo //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }} >> .npmrc 
+      # - run: cat package.json
       - run: npm install
       - run: npm run build
       - run: npm publish --force --access public
