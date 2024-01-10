@@ -178,6 +178,7 @@ jobs:
         uses: actions/setup-node@v4.0.1
         with:
           node-version: 18
+          token: ${{ secrets.NPM_TOKEN }}
       # - run: |
       #    echo @utopiksandcastle:registry=https://registry.npmjs.org/ > .npmrc
       #    echo //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }} >> .npmrc
