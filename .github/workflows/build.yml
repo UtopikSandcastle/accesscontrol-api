@@ -159,7 +159,7 @@ jobs:
           registry-url: https://npm.pkg.github.com/
           node-version: 18
           token: ${{secrets.GITHUB_TOKEN}}
-      
+      - run: echo ${{secrets.GITHUB_TOKEN}}
       - run: npm config list
       - run: npm install
       - run: npm run build
