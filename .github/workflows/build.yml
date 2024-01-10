@@ -142,7 +142,7 @@ jobs:
         uses: openapi-generators/openapitools-generator-action@v1.5.0
         with:
           generator: typescript-angular
-          command-args: --additional-properties=npmName=accesscontrol-client,npmVersion=1.0.0-dev
+          command-args: --additional-properties=npmName=@utopiksandcastle/accesscontrol-client,npmVersion=1.0.0-dev
   
       - name: Upload OpenAPI configuration file to artifact
         uses: actions/upload-artifact@v4.0.0
