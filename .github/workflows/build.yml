@@ -156,12 +156,13 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
           registry-url: https://npm.pkg.github.com/
-          always-auth: true
+          node-version: 18
+          token: ${{secrets.GITHUB_TOKEN}}
+      
       - run: npm config list
       - run: npm install
       - run: npm run build
       - run: npm publish dist --loglevel verbose
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
