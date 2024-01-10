@@ -118,16 +118,7 @@ jobs:
   openapi:
     needs: docker
     runs-on: ubuntu-latest
-    steps:
-      # # Login against a Docker DOCKER_REGISTRY except on PR
-      # # https://github.com/docker/login-action
-      # - name: Log into DOCKER_REGISTRY ${{ env.DOCKER_REGISTRY }}
-      #   uses: docker/login-action@v3
-      #   with:
-      #     DOCKER_REGISTRY: ${{ env.DOCKER_REGISTRY }}
-      #     username: ${{ secrets.DOCKERHUB_USERNAME }}
-      #     password: ${{ secrets.GITHUB_TOKEN }}
-          
+    steps:          
       - name: Extract OpenAPI configuration file
         uses: shrink/actions-docker-extract@v3
         with:
@@ -152,33 +143,26 @@ jobs:
         uses: actions/download-artifact@v4.1.0
         with:
           name: openapi
-
+      
       - name: Generate Angular Client
         uses: openapi-generators/openapitools-generator-action@v1.5.0
         with:
           generator: typescript-angular
           command-args: --additional-properties=npmName=accesscontrol-client,npmVersion=${{ needs.setup.outputs.version }}
-  
-      # - name: Upload OpenAPI configuration file to artifact
-      #   uses: actions/upload-artifact@v4.0.0
-      #   with:
-      #     name: openapi-typescript-angular
-      #     path: ./typescript-angular-client
-
-      # - name: Download OpenAPI configuration file from artifact
-      #   uses: actions/download-artifact@v4.1.0
-      #   with:
-      #     name: openapi-typescript-angular
       - run: |
           mv ./typescript-angular-client/* .
           rm -rf ./typescript-angular-client
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 18
           # cache: 'npm'
           # scope: '@utopiksandcastle'
+      - run: |
+         echo registry=https://registry.npmjs.org/ > .npmrc
+         echo always-auth=true >> .npmrc
+         echo _authToken=${{ secrets.NPM_TOKEN }} >> .npmrc 
       - run: cat package.json
       - run: npm install
       - run: npm run build
