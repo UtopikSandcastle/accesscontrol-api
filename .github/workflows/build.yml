@@ -203,8 +203,10 @@ jobs:
       - run: npm run build
       - run: |
           if [[ "${{ github.ref }}" == refs/heads/v* ]] && [[ "${{ github.ref }}" == *.* ]]; then
+            echo "Publishing the latest version"
             npm publish --access public --tag latest
           else
+            echo "Publishing a dev version"
             npm unpublish $PACKAGE_NAME@$PACKAGE_VERSION
             npm publish --access public --tag dev
           fi
