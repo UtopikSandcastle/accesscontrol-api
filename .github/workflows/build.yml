@@ -181,6 +181,7 @@ jobs:
           # cache: 'npm'
           scope: '@utopiksandcastle'
           token: ${{ secrets.NPM_TOKEN }}
+          always-auth: true
       # - run: |
       #    echo @utopiksandcastle:registry=https://registry.npmjs.org/ > .npmrc
       #    echo //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }} >> .npmrc 
