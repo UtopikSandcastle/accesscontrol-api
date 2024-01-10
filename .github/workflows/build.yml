@@ -24,16 +24,34 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.set_ver.outputs.version }}
+      npm_version: ${{ steps.set_ver.outputs.npm_version }}
     steps:
       - name: Set version
         id: set_ver
         run: |
-          if [ "${{ github.event_name }}" == "pull_request" ]; then
-            echo "version=pr-${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
-          else
-            echo "version=${{ github.ref }} | sed 's|refs/heads/||'" >> $GITHUB_OUTPUT
+          BASE_VERSION="0.0.0"
+          VERSION_SUFFIX=""
+
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            VERSION_SUFFIX="-pr"
+          elif [ "${{ github.event_name }}" = "push" ] && [[ ${{ github.ref }} == refs/tags/* ]]; then
+            TAG_NAME=$(echo "${{ github.ref }}" | sed 's|refs/tags/v||')
+            VERSION_SUFFIX="$TAG_NAME"
+          elif [ "${{ github.event_name }}" = "push" ]; then
+            BRANCH_NAME=$(echo "${{ github.ref }}" | sed 's|refs/heads/||' | sed 's|/|-|g')
+            VERSION_SUFFIX="-$BRANCH_NAME"
           fi
+
+          FINAL_VERSION="$BASE_VERSION$VERSION_SUFFIX"
+          echo "npm_version=$FINAL_VERSION" >> $GITHUB_OUTPUT
+        # run: |
+        #   if [ "${{ github.event_name }}" == "pull_request" ]; then
+        #     echo "version=0.0.0-pr.${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+        #   elif [ startsWith(github.ref, 'refs/heads/v') && contains(github.ref, '.') ]
+        #     echo "version=${{ github.ref }} | sed 's|refs/heads/||'" >> $GITHUB_OUTPUT
+        #   else
+        #     echo "version=0.0.0-${{ github.ref }} | sed 's|refs/heads/||'" >> $GITHUB_OUTPUT
+        #   fi
 
   docker:
     needs: setup
@@ -148,7 +166,7 @@ jobs:
         uses: openapi-generators/openapitools-generator-action@v1.5.0
         with:
           generator: typescript-angular
-          command-args: --additional-properties=npmName=accesscontrol-client,npmVersion=${{ needs.setup.outputs.version }}
+          command-args: --additional-properties=npmName=accesscontrol-client,npmVersion=${{ needs.setup.outputs.npm_version }}
       - run: |
           mv ./typescript-angular-client/* .
           rm -rf ./typescript-angular-client
