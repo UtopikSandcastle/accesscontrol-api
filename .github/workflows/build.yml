@@ -169,7 +169,7 @@ jobs:
         uses: openapi-generators/openapitools-generator-action@v1.5.0
         with:
           generator: typescript-angular
-          command-args: --additional-properties=npmName=$PACKAGE_NAME,npmVersion=$PACKAGE_VERSION
+          command-args: --additional-properties=npmName=$PACKAGE_NAME,npmVersion=$PACKAGE_VERSION,npmRepository=https://github.com/${{ github.repository }}
       - run: |
           mv ./typescript-angular-client/* .
           rm -rf ./typescript-angular-client
@@ -178,12 +178,18 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 18
-      - run: |
-         echo @utopiksandcastle:registry=https://registry.npmjs.org/ > .npmrc
-         echo //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }} >> .npmrc 
+      # - run: |
+      #    echo @utopiksandcastle:registry=https://registry.npmjs.org/ > .npmrc
+      #    echo //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }} >> .npmrc
+      - run: cat $NPM_CONFIG_USERCONFIG
       - run: cat package.json
       - run: npm install
       - run: npm run build
-      - run: npm publish --access public
+      - run: |
+          if [ startsWith(github.ref, 'refs/heads/v') && contains(github.ref, '.') ]; then
+            npm publish --access public
+          else
+            npm publish --force --access public
+          fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
