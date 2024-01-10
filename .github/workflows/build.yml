@@ -24,16 +24,15 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.set_vars.outputs.version }}
+      version: ${{ steps.setup.outputs.version }}
     steps:
       - name: Set version
-        id: set_vars
+        id: setup
         run: |
-          echo "::set-output name=version::"
           if [ "${{ github.event_name }}" == "pull_request" ]; then
             echo "version=pr-${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
           else
-            echo ${{ github.ref }} | sed 's|refs/heads/||' >> $GITHUB_OUTPUT
+            echo "version=${{ github.ref }} | sed 's|refs/heads/||'" >> $GITHUB_OUTPUT
           fi
 
   docker:
@@ -175,9 +174,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 18
+          scope: '@utopiksandcastle'
       - run: npm config ls -l
       # - run: cat /opt/hostedtoolcache/node/18.19.0/x64/etc/npmrc
-      - run: cat /home/runner/.npmrc
+      # - run: cat /home/runner/.npmrc
       - run: npm install
       - run: npm run build
       - run: npm publish dist
