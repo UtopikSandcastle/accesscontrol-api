@@ -117,7 +117,8 @@ jobs:
     env:
       PACKAGE_NAME: "@utopiksandcastle/accesscontrol-client"
     steps:
-      - run: echo "PACKAGE_VERSION=$(echo '${{ github.ref }}' | sed 's|refs/tags/v||')" >> $GITHUB_ENV
+      # - run: echo "PACKAGE_VERSION=$(echo '${{ github.ref }}' | sed 's|refs/tags/v||')" >> $GITHUB_ENV
+      - run: echo "PACKAGE_VERSION=0.0.0-pr.16" >> $GITHUB_ENV
 
       - name: Download OpenAPI configuration file from artifact
         uses: actions/download-artifact@v4.1.0
