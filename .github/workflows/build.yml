@@ -205,14 +205,14 @@ jobs:
       # - run: npm install
       # - run: npm run build
 
-      - name: Publish the package
-      - run: |
-          echo "Publishing $PACKAGE_NAME@$PACKAGE_VERSION"
-          if [[ "${{ github.ref }}" == refs/heads/v* ]] && [[ "${{ github.ref }}" == *.* ]]; then
-            npm publish --access public --tag latest
-          else
-            npm unpublish $PACKAGE_NAME@$PACKAGE_VERSION
-            npm publish --access public --tag dev
-          fi
-        # env:
-        #   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # - name: Publish the package
+      # - run: |
+      #     echo "Publishing $PACKAGE_NAME@$PACKAGE_VERSION"
+      #     if [[ "${{ github.ref }}" == refs/heads/v* ]] && [[ "${{ github.ref }}" == *.* ]]; then
+      #       npm publish --access public --tag latest
+      #     else
+      #       npm unpublish $PACKAGE_NAME@$PACKAGE_VERSION
+      #       npm publish --access public --tag dev
+      #     fi
+      #   # env:
+      #   #   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
