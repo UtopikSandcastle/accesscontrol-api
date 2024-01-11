@@ -6,90 +6,92 @@ on:
   pull_request:
     # types: [closed]
     branches: [ "main" ]
-    
+
 jobs:
-  delete-package-versions:
-    runs-on: ubuntu-latest
+delete-package-versions:
+  runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v2
 
-      - name: Delete Versions of Packages for Closed PRs
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const org = context.repo.owner;
-            const repo = context.repo.repo;
+    - name: Delete Versions of Packages for Closed PRs
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const org = context.repo.owner;
+          const repo = context.repo.repo;
 
-            // List of known package types
-            const packageTypes = ['container', 'npm', 'maven', 'nuget', 'rubygems'];
+          // List of known package types - adjust based on GitHub's current API capabilities
+          const packageTypes = ['npm', 'maven', 'rubygems', 'docker', 'nuget', 'container']; // Update this list as necessary
 
-            // Function to safely execute API calls
-            async function safeApiCall(apiPromise, description) {
-              try {
-                const response = await apiPromise;
-                console.log(`Success: ${description}`);
-                return response;
-              } catch (error) {
-                console.error(`API Error for ${description}:`, error);
-                return null;
-              }
+          // Function to safely execute API calls
+          async function safeApiCall(apiPromise, description) {
+            try {
+              const response = await apiPromise;
+              console.log(`Success: ${description}`);
+              return response;
+            } catch (error) {
+              console.error(`API Error for ${description}:`, error);
+              return null;
+            }
+          }
+
+          // Fetch closed PRs
+          const closedPrsResponse = await safeApiCall(
+            github.rest.pulls.list({
+              owner: org,
+              repo: repo,
+              state: 'closed'
+            }), 
+            'Fetching closed PRs'
+          );
+          if (!closedPrsResponse) return;
+
+          const closedPrNumbers = closedPrsResponse.data.map(pr => pr.number);
+
+          for (const packageType of packageTypes) {
+            // Fetch all packages of a specific type
+            let packagesResponse;
+            try {
+              packagesResponse = await github.rest.packages.listPackagesForOrganization({
+                org: org,
+                package_type: packageType
+              });
+            } catch (error) {
+              console.error(`API Error for fetching packages of type ${packageType}:`, error);
+              continue; // Skip to the next package type if an error occurs
             }
 
-            // Fetch closed PRs
-            const closedPrsResponse = await safeApiCall(
-              github.rest.pulls.list({
-                owner: org,
-                repo: repo,
-                state: 'closed'
-              }), 
-              'Fetching closed PRs'
-            );
-            if (!closedPrsResponse) return;
+            for (const package of packagesResponse.data) {
+              const packageName = package.name;
 
-            const closedPrNumbers = closedPrsResponse.data.map(pr => pr.number);
-
-            for (const packageType of packageTypes) {
-              // Fetch all packages of a specific type
-              const packagesResponse = await safeApiCall(
-                github.rest.packages.listPackagesForOrganization({
+              // Fetch all versions for each package
+              const versionsResponse = await safeApiCall(
+                github.rest.packages.getAllPackageVersionsForPackageOwnedByOrg({
                   org: org,
-                  package_type: packageType
+                  package_type: packageType,
+                  package_name: packageName
                 }),
-                `Fetching packages of type ${packageType}`
+                `Fetching versions for package ${packageName}`
               );
-              if (!packagesResponse) continue;
+              if (!versionsResponse) continue;
 
-              for (const package of packagesResponse.data) {
-                const packageName = package.name;
-
-                // Fetch all versions for each package
-                const versionsResponse = await safeApiCall(
-                  github.rest.packages.getAllPackageVersionsForPackageOwnedByOrg({
-                    org: org,
-                    package_type: packageType,
-                    package_name: packageName
-                  }),
-                  `Fetching versions for package ${packageName}`
-                );
-                if (!versionsResponse) continue;
-
-                // Iterate over each version
-                for (const version of versionsResponse.data) {
-                  // Check if version corresponds to a closed PR
-                  if (closedPrNumbers.includes(parseInt(version.name))) {
-                    // Delete the package version
-                    await safeApiCall(
-                      github.rest.packages.deletePackageVersionForOrg({
-                        org: org,
-                        package_type: packageType,
-                        package_name: packageName,
-                        package_version_id: version.id,
-                      }),
-                      `Deleting package version ${version.id} of ${packageName}`
-                    );
-                  }
+              // Iterate over each version
+              for (const version of versionsResponse.data) {
+                // Check if version corresponds to a closed PR
+                if (closedPrNumbers.includes(parseInt(version.name))) {
+                  // Delete the package version
+                  await safeApiCall(
+                    github.rest.packages.deletePackageVersionForOrg({
+                      org: org,
+                      package_type: packageType,
+                      package_name: packageName,
+                      package_version_id: version.id,
+                    }),
+                    `Deleting package version ${version.id} of ${packageName}`
+                  );
                 }
               }
             }
+          }
