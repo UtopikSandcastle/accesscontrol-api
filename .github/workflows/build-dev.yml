@@ -104,7 +104,7 @@ jobs:
             VERSION_SUFFIX=$(echo "${{ github.ref }}" | sed 's|refs/heads/||' | sed 's|/|-|g')
           fi
 
-          echo PACKAGE_VERSION="$BASE_VERSION$VERSION_SUFFIX" >> $GITHUB_OUTPUT
+          echo "PACKAGE_VERSION=$BASE_VERSION$VERSION_SUFFIX" >> $GITHUB_OUTPUT
 
       # Get a copy of the OpenAPI Configuration File in the local directory.
       - name: Download OpenAPI configuration file from artifact
