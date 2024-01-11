@@ -175,7 +175,7 @@ jobs:
         uses: actions/delete-package-versions@v4
         with:
           package-name: $PACKAGE_NAME
-          package-type: npm
+          package-type: 'npm'
           package-version-ids: ${{ steps.version_id.outputs.result }}
 
       # Publish the package.
