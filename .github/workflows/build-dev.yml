@@ -165,12 +165,12 @@ jobs:
               return version.id
             } catch (error) {
               console.error('An error occurred:', error.message);
+              return 0
             }
-          result-encoding: string
 
       # Remove previous push of that version
       - uses: actions/delete-package-versions@v4
-        if: ${{ steps.version_id.outputs.result }} != ''
+        if: ${{ steps.version_id.outputs.result }} != 0
         with:
           package-name: $PACKAGE_NAME
           package-type: npm
