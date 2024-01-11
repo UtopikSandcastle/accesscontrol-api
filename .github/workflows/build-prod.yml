@@ -129,7 +129,7 @@ jobs:
             -v ${{ github.workspace }}:/workspace \
             openapitools/openapi-generator-cli \
               generate \
-                -i /workspace/swagger.json \
+                -i /workspace/openapi.json \
                 -g typescript-angular \
                 -o /workspace/ \
                 --additional-properties=npmName=$PACKAGE_NAME,npmVersion=$PACKAGE_VERSION
