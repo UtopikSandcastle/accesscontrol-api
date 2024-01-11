@@ -195,14 +195,14 @@ jobs:
          echo //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }} > .npmrc
          echo @utopiksandcastle:registry=https://registry.npmjs.org/ >> .npmrc
 
-      # - name: Configure package
-      # - run: |
-      #     jq '.repository = {"type": "git", "url": "git+https://github.com/${{ github.repository }}"}' package.json > tmp.json && mv tmp.json package.json
-      #     jq '.author = "Utopik Sandcastle <utopiksandcastle@utopiksolutions.com>"' package.json > tmp.json && mv tmp.json package.json
-      # - run: cat package.json
+      - name: Configure package
+        run: |
+          jq '.repository = {"type": "git", "url": "git+https://github.com/${{ github.repository }}"}' package.json > tmp.json && mv tmp.json package.json
+          jq '.author = "Utopik Sandcastle <utopiksandcastle@utopiksolutions.com>"' package.json > tmp.json && mv tmp.json package.json
+      - run: cat package.json
 
       - name: Build the package
-      - run: npm install
+        run: npm install
       - run: npm run build
 
       - name: Publish the package
