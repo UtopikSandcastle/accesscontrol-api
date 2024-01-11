@@ -15,49 +15,71 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Delete Versions of All Packages for Closed PRs
+      - name: Delete Versions of Packages for Closed PRs
         uses: actions/github-script@v7
         with:
           script: |
             const org = context.repo.owner;
             const repo = context.repo.repo;
 
+            // Function to safely execute API calls
+            async function safeApiCall(apiPromise) {
+              try {
+                return await apiPromise;
+              } catch (error) {
+                console.error('API Error:', error.message);
+                return null;
+              }
+            }
+
             // Fetch closed PRs
-            const closedPrsResponse = await github.rest.pulls.list({
-              owner: org,
-              repo: repo,
-              state: 'closed'
-            });
+            const closedPrsResponse = await safeApiCall(
+              github.rest.pulls.list({
+                owner: org,
+                repo: repo,
+                state: 'closed'
+              })
+            );
+            if (!closedPrsResponse) return;
             const closedPrNumbers = closedPrsResponse.data.map(pr => pr.number);
 
             // Fetch all packages owned by the organization
-            const packagesResponse = await github.rest.packages.getAllPackageVersionsForPackageOwnedByOrg({
-              org: org,
-              package_type: 'container' // Adjust the package type as needed
-            });
+            const packagesResponse = await safeApiCall(
+              github.rest.packages.getAllPackageVersionsForPackageOwnedByOrg({
+                org: org,
+                package_type: 'container' // Adjust the package type as needed
+              })
+            );
+            if (!packagesResponse) return;
 
             // Iterate over each package
             for (const package of packagesResponse.data) {
               // Fetch all versions for each package
-              const versionsResponse = await github.rest.packages.getAllPackageVersionsForPackageOwnedByOrg({
-                org: org,
-                package_type: 'container', // Adjust the package type as needed
-                package_name: package.name
-              });
+              const versionsResponse = await safeApiCall(
+                github.rest.packages.getAllPackageVersionsForPackageOwnedByOrg({
+                  org: org,
+                  package_type: 'container', // Adjust the package type as needed
+                  package_name: package.name
+                })
+              );
+              if (!versionsResponse) continue;
 
               // Iterate over each version
               for (const version of versionsResponse.data) {
                 // Check if version corresponds to a closed PR
                 if (closedPrNumbers.includes(parseInt(version.name))) {
                   // Delete the package version
-                  await github.rest.packages.deletePackageVersionForOrg({
-                    org: org,
-                    package_type: 'container', // Adjust the package type as needed
-                    package_name: package.name,
-                    package_version_id: version.id,
-                  });
-                  console.log(`Deleted package version: ${version.id} corresponding to PR #${version.name}`);
+                  const deleteResponse = await safeApiCall(
+                    github.rest.packages.deletePackageVersionForOrg({
+                      org: org,
+                      package_type: 'container', // Adjust the package type as needed
+                      package_name: package.name,
+                      package_version_id: version.id,
+                    })
+                  );
+                  if (deleteResponse) {
+                    console.log(`Deleted package version: ${version.id} corresponding to PR #${version.name}`);
+                  }
                 }
               }
             }
-            
