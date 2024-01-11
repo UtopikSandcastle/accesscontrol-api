@@ -195,24 +195,24 @@ jobs:
          echo //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }} > .npmrc
          echo @utopiksandcastle:registry=https://registry.npmjs.org/ >> .npmrc
 
-      - name: Configure package
-      - run: |
-          jq '.repository = {"type": "git", "url": "git+https://github.com/${{ github.repository }}"}' package.json > tmp.json && mv tmp.json package.json
-          jq '.author = "Utopik Sandcastle <utopiksandcastle@utopiksolutions.com>"' package.json > tmp.json && mv tmp.json package.json
-      - run: cat package.json
-
-      # - name: Build the package
-      # - run: npm install
-      # - run: npm run build
-
-      # - name: Publish the package
+      # - name: Configure package
       # - run: |
-      #     echo "Publishing $PACKAGE_NAME@$PACKAGE_VERSION"
-      #     if [[ "${{ github.ref }}" == refs/heads/v* ]] && [[ "${{ github.ref }}" == *.* ]]; then
-      #       npm publish --access public --tag latest
-      #     else
-      #       npm unpublish $PACKAGE_NAME@$PACKAGE_VERSION
-      #       npm publish --access public --tag dev
-      #     fi
-      #   # env:
-      #   #   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      #     jq '.repository = {"type": "git", "url": "git+https://github.com/${{ github.repository }}"}' package.json > tmp.json && mv tmp.json package.json
+      #     jq '.author = "Utopik Sandcastle <utopiksandcastle@utopiksolutions.com>"' package.json > tmp.json && mv tmp.json package.json
+      # - run: cat package.json
+
+      - name: Build the package
+      - run: npm install
+      - run: npm run build
+
+      - name: Publish the package
+      - run: |
+          echo "Publishing $PACKAGE_NAME@$PACKAGE_VERSION"
+          if [[ "${{ github.ref }}" == refs/heads/v* ]] && [[ "${{ github.ref }}" == *.* ]]; then
+            npm publish --access public --tag latest
+          else
+            npm unpublish $PACKAGE_NAME@$PACKAGE_VERSION
+            npm publish --access public --tag dev
+          fi
+        # env:
+        #   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
