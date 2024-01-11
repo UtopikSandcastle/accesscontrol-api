@@ -19,8 +19,8 @@ jobs:
             const org = context.repo.owner;
             const repo = context.repo.repo;
 
-            console.log(`org: ${org}`);
-            console.log(`repo: ${repo}`);
+            console.debug(`org: ${org}`);
+            console.debug(`repo: ${repo}`);
 
             // List of known package types - adjust based on GitHub's current API capabilities
             const packageTypes = ['npm', 'maven', 'rubygems', 'docker', 'nuget', 'container']; // Update this list as necessary
@@ -65,7 +65,8 @@ jobs:
 
               for (const package of packagesResponse.data) {
                 const packageName = package.name;
-                console.log(`packageName: ${packageName}`);
+                console.debug(`packageName: ${packageName}`);
+                console.debug(`packageType: ${packageType}`);
 
                 // Fetch all versions for each package
                 const versionsResponse = await safeApiCall(
