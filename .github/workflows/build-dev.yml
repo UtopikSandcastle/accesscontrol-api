@@ -149,6 +149,8 @@ jobs:
         run: npm install
       - run: npm run build
 
+      # npm package cannot be removed, but in GitHub package registry it's possible.
+      # So, the package can be removed, and replaced by a new build.
       - name: Get the previous package id for the same package version
         id: version_id
         uses: actions/github-script@v7
