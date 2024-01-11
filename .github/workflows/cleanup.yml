@@ -81,6 +81,7 @@ jobs:
 
                 // Iterate over each version
                 for (const version of versionsResponse.data) {
+                  console.debug(`version: ${version}`);
                   // Check if version corresponds to a closed PR
                   if (closedPrNumbers.includes(parseInt(version.name))) {
                     // Delete the package version
