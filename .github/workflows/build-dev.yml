@@ -170,7 +170,7 @@ jobs:
 
       # Remove previous push of that version
       - name: Delete package
-        if: ${{ steps.version_id.outputs.result }} != '0'
+        if: steps.version_id.outputs.result != '0'
         uses: actions/delete-package-versions@v4
         with:
           package-name: $PACKAGE_NAME
