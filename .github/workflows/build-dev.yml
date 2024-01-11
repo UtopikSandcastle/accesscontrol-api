@@ -100,7 +100,7 @@ jobs:
 
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             VERSION_SUFFIX="-pr.${{ github.event.pull_request.number }}"
-          else:
+          else
             VERSION_SUFFIX=$(echo "${{ github.ref }}" | sed 's|refs/heads/||' | sed 's|/|-|g')
           fi
 
