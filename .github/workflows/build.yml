@@ -182,7 +182,7 @@ jobs:
         uses: openapi-generators/openapitools-generator-action@v1.5.0
         with:
           generator: typescript-angular
-          command-args: --additional-properties=npmName=$PACKAGE_NAME,npmVersion=$PACKAGE_VERSION,npmRepository=https://github.com/${{ github.repository }}
+          command-args: --additional-properties=npmName=$PACKAGE_NAME,npmVersion=$PACKAGE_VERSION
       - run: |
           mv ./typescript-angular-client/* .
           rm -rf ./typescript-angular-client
@@ -197,16 +197,21 @@ jobs:
       - run: |
          echo //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }} > .npmrc
          echo @utopiksandcastle:registry=https://registry.npmjs.org/ >> .npmrc
-      - run: cat $NPM_CONFIG_USERCONFIG
-      - run: cat package.json
       - run: npm install
       - run: npm run build
+
+      - name: Configure package
       - run: |
+          jq '.repository = {"type": "git", "url": "git+https://github.com/${{ github.repository }}"}' package.json > tmp.json && mv tmp.json package.json
+          jq '.author = "Utopik Sandcastle <utopiksandcastle@utopiksolutions.com>"' package.json > tmp.json && mv tmp.json package.json
+      - run: cat package.json
+
+      - name: Publish the package
+      - run: |
+          echo "Publishing $PACKAGE_NAME@$PACKAGE_VERSION"
           if [[ "${{ github.ref }}" == refs/heads/v* ]] && [[ "${{ github.ref }}" == *.* ]]; then
-            echo "Publishing the latest version"
             npm publish --access public --tag latest
           else
-            echo "Publishing a dev version"
             npm unpublish $PACKAGE_NAME@$PACKAGE_VERSION
             npm publish --access public --tag dev
           fi
