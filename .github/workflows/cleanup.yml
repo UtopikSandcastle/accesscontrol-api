@@ -51,6 +51,7 @@ jobs:
             const closedPrNumbers = closedPrsResponse.data.map(pr => pr.number);
 
             for (const packageType of packageTypes) {
+              console.debug(`packageType: ${packageType}`);
               // Fetch all packages of a specific type
               let packagesResponse;
               try {
@@ -66,7 +67,6 @@ jobs:
               for (const package of packagesResponse.data) {
                 const packageName = package.name;
                 console.debug(`packageName: ${packageName}`);
-                console.debug(`packageType: ${packageType}`);
 
                 // Fetch all versions for each package
                 const versionsResponse = await safeApiCall(
