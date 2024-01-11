@@ -170,6 +170,7 @@ jobs:
 
       # Remove previous push of that version
       - uses: actions/delete-package-versions@v4
+        if: ${{ steps.version_id.outputs.result }} != ''
         with:
           package-name: $PACKAGE_NAME
           package-type: npm
