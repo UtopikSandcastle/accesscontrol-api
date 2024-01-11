@@ -144,6 +144,12 @@ jobs:
         run: npm install
       - run: npm run build
 
+      # Remove previous push of that version
+      - uses: actions/delete-package-versions@v4
+        with:
+          package-name: $PACKAGE_NAME@$PACKAGE_VERSION
+          package-type: npm
+
       # Publish the package.
       - name: Publish the package
         run: |
