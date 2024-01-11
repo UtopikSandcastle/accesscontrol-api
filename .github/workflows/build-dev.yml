@@ -98,8 +98,8 @@ jobs:
     steps:
       - run: |
           GITHUB_REPOSITORY="${{ github.repository }}"
-          PACKAGE_SCOPE="@$(echo "${GITHUB_REPOSITORY#*/}" | tr '[:upper:]' '[:lower:]')"
-          PACKAGE_NAME="${PACKAGE_FULLNAME##*/}-client"
+          PACKAGE_SCOPE="@$(echo "${GITHUB_REPOSITORY##*/}" | tr '[:upper:]' '[:lower:]')"
+          PACKAGE_NAME="${GITHUB_REPOSITORY#*/}-client"
           echo "PACKAGE_SCOPE=$PACKAGE_SCOPE" >> $GITHUB_ENV
           echo "PACKAGE_NAME=$PACKAGE_NAME" >> $GITHUB_ENV
       - run: |
