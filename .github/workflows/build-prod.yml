@@ -111,10 +111,16 @@ jobs:
   openapi-typescript-angular:
     needs: openapi
     runs-on: ubuntu-latest
-    env:
-      PACKAGE_NAME: "@utopiksandcastle/accesscontrol-client"
     steps:
-      - run: echo "PACKAGE_VERSION=$(echo '${{ github.ref }}' | sed 's|refs/tags/v||')" >> $GITHUB_ENV
+      - name: Get package meta
+        id: package
+        run: |
+          PACKAGE_SCOPE="@$(echo "${GITHUB_REPOSITORY%%/*}" | tr '[:upper:]' '[:lower:]')"
+          PACKAGE_NAME="${GITHUB_REPOSITORY#*/}-client"
+          echo "scope=$PACKAGE_SCOPE" >> $GITHUB_OUTPUT
+          echo "name=$PACKAGE_NAME" >> $GITHUB_OUTPUT
+
+          echo "version=$(echo '${{ github.ref }}' | sed 's|refs/tags/v||')" >> $GITHUB_OUTPUT
 
       # Get a copy of the OpenAPI Configuration File in the local directory.
       - name: Download OpenAPI configuration file from artifact
@@ -132,7 +138,7 @@ jobs:
                 -i /workspace/openapi.json \
                 -g typescript-angular \
                 -o /workspace/ \
-                --additional-properties=npmName=$PACKAGE_NAME,npmVersion=$PACKAGE_VERSION
+                --additional-properties=npmName=${{ steps.package.outputs.scope }}/${{ steps.package.outputs.name }},npmVersion=${{ steps.package.outputs.version }}
 
       # Setup the requirement for npm package
       - name: Set up Node.js
