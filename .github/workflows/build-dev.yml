@@ -153,14 +153,14 @@ jobs:
 
       - name: Get the previous package id for the same version
         id: version_id
-        uses: actions/github-script@v5
+        uses: actions/github-script@v7
         with:
           script: |
             const response = await github.rest.packages.getAllPackageVersionsForPackageOwnedByOrg({
               org: context.repo.owner,
-              package_name: $PACKAGE_NAME,
+              package_name: process.env.PACKAGE_NAME,
             });
-            const version = response.data.find(v => v.name === $PACKAGE_VERSION);
+            const version = response.data.find(v => v.name === process.env.PACKAGE_VERSION);
             return version.id
           result-encoding: string
 
