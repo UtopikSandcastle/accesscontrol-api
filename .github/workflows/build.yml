@@ -201,9 +201,9 @@ jobs:
           jq '.author = "Utopik Sandcastle <utopiksandcastle@utopiksolutions.com>"' package.json > tmp.json && mv tmp.json package.json
       - run: cat package.json
 
-      - name: Build the package
-      - run: npm install
-      - run: npm run build
+      # - name: Build the package
+      # - run: npm install
+      # - run: npm run build
 
       # - name: Publish the package
       # - run: |
