@@ -22,8 +22,8 @@ jobs:
             const org = context.repo.owner;
             const repo = context.repo.repo;
 
-            // Debug: Log the organization and repository
-            console.log(`Organization: ${org}, Repository: ${repo}`);
+            // List of known package types
+            const packageTypes = ['container', 'npm', 'maven', 'nuget', 'rubygems'];
 
             // Function to safely execute API calls
             async function safeApiCall(apiPromise, description) {
@@ -48,58 +48,47 @@ jobs:
             );
             if (!closedPrsResponse) return;
 
-            // Debug: Log the number of closed PRs found
-            console.log(`Number of closed PRs: ${closedPrsResponse.data.length}`);
             const closedPrNumbers = closedPrsResponse.data.map(pr => pr.number);
 
-            // Fetch all packages owned by the organization
-            const packagesResponse = await safeApiCall(
-              github.rest.packages.listPackagesForOrganization({
-                org: org,
-                package_type: 'container' // Change to your package type
-              }),
-              'Fetching all packages'
-            );
-            if (!packagesResponse) return;
-
-            // Debug: Log the total number of packages found
-            console.log(`Total number of packages found: ${packagesResponse.data.length}`);
-
-            // Iterate over each package
-            for (const package of packagesResponse.data) {
-              const packageName = package.name;
-              const packageType = package.package_type;
-
-              // Fetch all versions for each package
-              const versionsResponse = await safeApiCall(
-                github.rest.packages.getAllPackageVersionsForPackageOwnedByOrg({
+            for (const packageType of packageTypes) {
+              // Fetch all packages of a specific type
+              const packagesResponse = await safeApiCall(
+                github.rest.packages.listPackagesForOrganization({
                   org: org,
-                  package_type: packageType,
-                  package_name: packageName
+                  package_type: packageType
                 }),
-                `Fetching versions for package ${packageName}`
+                `Fetching packages of type ${packageType}`
               );
-              if (!versionsResponse) continue;
+              if (!packagesResponse) continue;
 
-              // Debug: Log the number of versions for the package
-              console.log(`Number of versions for package ${packageName}: ${versionsResponse.data.length}`);
+              for (const package of packagesResponse.data) {
+                const packageName = package.name;
 
-              // Iterate over each version
-              for (const version of versionsResponse.data) {
-                // Check if version corresponds to a closed PR
-                if (closedPrNumbers.includes(parseInt(version.name))) {
-                  // Delete the package version
-                  const deleteResponse = await safeApiCall(
-                    github.rest.packages.deletePackageVersionForOrg({
-                      org: org,
-                      package_type: packageType,
-                      package_name: packageName,
-                      package_version_id: version.id,
-                    }),
-                    `Deleting package version ${version.id} of ${packageName}`
-                  );
-                  if (deleteResponse) {
-                    console.log(`Deleted package version: ${version.id} of ${packageName}, corresponding to PR #${version.name}`);
+                // Fetch all versions for each package
+                const versionsResponse = await safeApiCall(
+                  github.rest.packages.getAllPackageVersionsForPackageOwnedByOrg({
+                    org: org,
+                    package_type: packageType,
+                    package_name: packageName
+                  }),
+                  `Fetching versions for package ${packageName}`
+                );
+                if (!versionsResponse) continue;
+
+                // Iterate over each version
+                for (const version of versionsResponse.data) {
+                  // Check if version corresponds to a closed PR
+                  if (closedPrNumbers.includes(parseInt(version.name))) {
+                    // Delete the package version
+                    await safeApiCall(
+                      github.rest.packages.deletePackageVersionForOrg({
+                        org: org,
+                        package_type: packageType,
+                        package_name: packageName,
+                        package_version_id: version.id,
+                      }),
+                      `Deleting package version ${version.id} of ${packageName}`
+                    );
                   }
                 }
               }
