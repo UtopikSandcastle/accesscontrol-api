@@ -1,10 +1,10 @@
-name: build
+name: build-dev
 
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+  # pull_request: #TODO: Debug: Enable
+  #   branches: [ "main" ]
 
 jobs:
   docker:
