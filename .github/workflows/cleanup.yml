@@ -15,18 +15,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: List All Packages and Delete Versions
+      - name: Delete Versions of All Packages for Closed PRs
         uses: actions/github-script@v7
         with:
           script: |
             const org = context.repo.owner;
             const repo = context.repo.repo;
-
-            // Fetch all packages in the repository
-            const packagesResponse = await github.rest.packages.getAllPackageVersionsForRepo({
-              owner: org,
-              repo: repo
-            });
 
             // Fetch closed PRs
             const closedPrsResponse = await github.rest.pulls.list({
@@ -36,27 +30,33 @@ jobs:
             });
             const closedPrNumbers = closedPrsResponse.data.map(pr => pr.number);
 
-            for (const package of packagesResponse.data) {
-              const packageName = package.name;
-              const packageType = package.package_type;
+            // Fetch all packages owned by the organization
+            const packagesResponse = await github.rest.packages.getAllPackageVersionsForPackageOwnedByOrg({
+              org: org,
+              package_type: 'container' // Adjust the package type as needed
+            });
 
+            // Iterate over each package
+            for (const package of packagesResponse.data) {
               // Fetch all versions for each package
               const versionsResponse = await github.rest.packages.getAllPackageVersionsForPackageOwnedByOrg({
                 org: org,
-                package_type: packageType,
-                package_name: packageName
+                package_type: 'container', // Adjust the package type as needed
+                package_name: package.name
               });
 
-              // Filter versions that correspond to closed PRs and delete them
+              // Iterate over each version
               for (const version of versionsResponse.data) {
+                // Check if version corresponds to a closed PR
                 if (closedPrNumbers.includes(parseInt(version.name))) {
+                  // Delete the package version
                   await github.rest.packages.deletePackageVersionForOrg({
                     org: org,
-                    package_type: packageType,
-                    package_name: packageName,
+                    package_type: 'container', // Adjust the package type as needed
+                    package_name: package.name,
                     package_version_id: version.id,
                   });
-                  console.log(`Deleted ${packageType} package version: ${version.id} corresponding to PR #${version.name}`);
+                  console.log(`Deleted package version: ${version.id} corresponding to PR #${version.name}`);
                 }
               }
             }
