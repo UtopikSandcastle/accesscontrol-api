@@ -149,22 +149,28 @@ jobs:
         run: npm install
       - run: npm run build
 
-      - name: Get the previous package id for the same version
+      - name: Get the previous package id for the same package version
         id: version_id
         uses: actions/github-script@v7
         with:
           script: |
+            const packageName = ${{ steps.package.outputs.name }};
+            const packageVersion = ${{ steps.package.outputs.version }};
             try {
               const response = await github.rest.packages.getAllPackageVersionsForPackageOwnedByOrg({
                 org: context.repo.owner,
-                package_name: ${{ steps.package.outputs.name }},
+                package_name: packageName,
                 package_type: 'npm'
               });
-              const version = response.data.find(v => v.name === ${{ steps.package.outputs.version }});
-              return version.id
+              const version = response.data.find(v => v.name === packageVersion);
+              if (version && version.id) {
+                return version.id;
+              } else {
+                throw new Error('Version not found');
+              }
             } catch (error) {
               console.error('An error occurred:', error.message);
-              return 0
+              return 0;
             }
 
       # Remove previous push of that version
