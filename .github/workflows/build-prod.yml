@@ -124,14 +124,15 @@ jobs:
           name: openapi
       
       - name: Generate Angular Client
-        run: docker run --rm \
-                -v ${{ github.workspace }}:/workspace \
-                openapitools/openapi-generator-cli \
-                generate \
-                  -i /workspace/swagger.json \
-                  -g typescript-angular \
-                  -o /workspace/ \
-                  --additional-properties=npmName=$PACKAGE_NAME,npmVersion=$PACKAGE_VERSION
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}:/workspace \
+            openapitools/openapi-generator-cli \
+              generate \
+                -i /workspace/swagger.json \
+                -g typescript-angular \
+                -o /workspace/ \
+                --additional-properties=npmName=$PACKAGE_NAME,npmVersion=$PACKAGE_VERSION
 
       - name: Set up Node.js
         uses: actions/setup-node@v4.0.1
