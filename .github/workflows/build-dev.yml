@@ -91,17 +91,15 @@ jobs:
   openapi-typescript-angular:
     needs: openapi
     runs-on: ubuntu-latest
-    env:
-      PACKAGE_SCOPE: "$PACKAGE_SCOPE"
-      PACKAGE_NAME: "$PACKAGE_NAME"
-      PACKAGE_VERSION: "$PACKAGE_VERSION"
     steps:
-      - run: |
+      - name: Get package meta
+        id: package
+        run: |
           PACKAGE_SCOPE="@$(echo "${GITHUB_REPOSITORY%%/*}" | tr '[:upper:]' '[:lower:]')"
           PACKAGE_NAME="${GITHUB_REPOSITORY#*/}-client"
-          echo "PACKAGE_SCOPE=$PACKAGE_SCOPE" >> $GITHUB_ENV
-          echo "PACKAGE_NAME=$PACKAGE_NAME" >> $GITHUB_ENV
-      - run: |
+          echo "scope=$PACKAGE_SCOPE" >> $GITHUB_OUTPUT
+          echo "name=$PACKAGE_NAME" >> $GITHUB_OUTPUT
+
           BASE_VERSION="0.0.0"
           VERSION_SUFFIX=""
 
@@ -111,7 +109,7 @@ jobs:
             VERSION_SUFFIX=$(echo "${{ github.ref }}" | sed 's|refs/heads/||' | sed 's|/|-|g')
           fi
 
-          echo "PACKAGE_VERSION=$BASE_VERSION$VERSION_SUFFIX" >> $GITHUB_ENV
+          echo "version=$BASE_VERSION$VERSION_SUFFIX" >> $GITHUB_OUTPUT
 
       # Get a copy of the OpenAPI Configuration File in the local directory.
       - name: Download OpenAPI configuration file from artifact
@@ -129,7 +127,7 @@ jobs:
                 -i /workspace/openapi.json \
                 -g typescript-angular \
                 -o /workspace/ \
-                --additional-properties=npmName=$PACKAGE_SCOPE/$PACKAGE_NAME,npmVersion=$PACKAGE_VERSION
+                --additional-properties=npmName=${{ steps.package.outputs.scope }}/${{ steps.package.outputs.name }},npmVersion=${{ steps.package.outputs.version }}
 
       # Setup the requirement for npm package
       - name: Set up Node.js
@@ -159,10 +157,10 @@ jobs:
             try {
               const response = await github.rest.packages.getAllPackageVersionsForPackageOwnedByOrg({
                 org: context.repo.owner,
-                package_name: process.env.PACKAGE_NAME,
+                package_name: ${{ steps.package.outputs.name }},
                 package_type: 'npm'
               });
-              const version = response.data.find(v => v.name === process.env.PACKAGE_VERSION);
+              const version = response.data.find(v => v.name === ${{ steps.package.outputs.version }});
               return version.id
             } catch (error) {
               console.error('An error occurred:', error.message);
@@ -174,7 +172,7 @@ jobs:
         if: steps.version_id.outputs.result != '0'
         uses: actions/delete-package-versions@v4
         with:
-          package-name: $PACKAGE_NAME
+          package-name: ${{ steps.package.outputs.name }}
           package-type: 'npm'
           package-version-ids: ${{ steps.version_id.outputs.result }}
 
