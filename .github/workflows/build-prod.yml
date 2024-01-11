@@ -3,8 +3,6 @@ name: Build Prod
 on:
   push:
     tags: [ 'v*.*.*' ]
-  pull_request: #TODO: Remove debug
-    branches: [ "main" ]
 
 jobs:
   docker:
@@ -57,7 +55,6 @@ jobs:
         with:
           images: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE }}
           tags: |
-            type=ref,event=pr #TODO: Debug: Remove
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
@@ -117,14 +114,15 @@ jobs:
     env:
       PACKAGE_NAME: "@utopiksandcastle/accesscontrol-client"
     steps:
-      # - run: echo "PACKAGE_VERSION=$(echo '${{ github.ref }}' | sed 's|refs/tags/v||')" >> $GITHUB_ENV
-      - run: echo "PACKAGE_VERSION=0.0.0-pr.16" >> $GITHUB_ENV
+      - run: echo "PACKAGE_VERSION=$(echo '${{ github.ref }}' | sed 's|refs/tags/v||')" >> $GITHUB_ENV
 
+      # Get a copy of the OpenAPI Configuration File in the local directory.
       - name: Download OpenAPI configuration file from artifact
         uses: actions/download-artifact@v4.1.0
         with:
           name: openapi
       
+      # Generate a npm package for Angular library based on the OpenAPI Configuration File.
       - name: Generate Angular Client
         run: |
           docker run --rm \
@@ -136,6 +134,7 @@ jobs:
                 -o /workspace/ \
                 --additional-properties=npmName=$PACKAGE_NAME,npmVersion=$PACKAGE_VERSION
 
+      # Setup the requirement for npm package
       - name: Set up Node.js
         uses: actions/setup-node@v4.0.1
         with:
@@ -143,16 +142,19 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           scope: '@utopiksandcastle'
 
+      # Add information to the package configuration.
       - name: Configure package
         run: |
           jq '.repository = {"type": "git", "url": "git+https://github.com/${{ github.repository }}"}' package.json > tmp.json && mv tmp.json package.json
           jq '.author = "Utopik Sandcastle <utopiksandcastle@utopiksolutions.com>"' package.json > tmp.json && mv tmp.json package.json
       - run: cat package.json
 
+      # Install requirement and build the package.
       - name: Build the package
         run: npm install
       - run: npm run build
 
+      # Publish the package.
       - name: Publish the package
         run: |
             npm publish --access public --tag latest
