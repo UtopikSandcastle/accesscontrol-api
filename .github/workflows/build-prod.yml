@@ -116,7 +116,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PACKAGE_NAME: "@utopiksandcastle/accesscontrol-client"
-      PACKAGE_VERSION: ${{ replace(github.ref, 'refs/tags/v', '') }}
     steps:
       - name: Download OpenAPI configuration file from artifact
         uses: actions/download-artifact@v4.1.0
@@ -125,6 +124,7 @@ jobs:
       
       - name: Generate Angular Client
         run: |
+          echo "VERSION_NUMBER=${{ replace(github.ref, 'refs/tags/v', '') }}" >> $GITHUB_ENV
           docker run --rm \
             -v ${{ github.workspace }}:/workspace \
             openapitools/openapi-generator-cli \
