@@ -3,6 +3,8 @@ name: Build Prod
 on:
   push:
     tags: [ 'v*.*.*' ]
+  pull_request: #TODO: Remove debug
+    branches: [ "main" ]
 
 jobs:
   docker:
