@@ -92,8 +92,16 @@ jobs:
     needs: openapi
     runs-on: ubuntu-latest
     env:
-      PACKAGE_NAME: "@utopiksandcastle/accesscontrol-client"
+      PACKAGE_SCOPE: "$PACKAGE_SCOPE"
+      PACKAGE_NAME: "$PACKAGE_NAME"
+      PACKAGE_VERSION: "$PACKAGE_VERSION"
     steps:
+      - run: |
+          GITHUB_REPOSITORY="${{ github.repository }}"
+          PACKAGE_SCOPE="@$(echo "${GITHUB_REPOSITORY#*/}" | tr '[:upper:]' '[:lower:]')"
+          PACKAGE_NAME="${PACKAGE_FULLNAME##*/}-client"
+          echo "PACKAGE_SCOPE=$PACKAGE_SCOPE" >> $GITHUB_ENV
+          echo "PACKAGE_NAME=$PACKAGE_NAME" >> $GITHUB_ENV
       - run: |
           BASE_VERSION="0.0.0"
           VERSION_SUFFIX=""
@@ -122,7 +130,7 @@ jobs:
                 -i /workspace/openapi.json \
                 -g typescript-angular \
                 -o /workspace/ \
-                --additional-properties=npmName=$PACKAGE_NAME,npmVersion=$PACKAGE_VERSION
+                --additional-properties=npmName=$PACKAGE_SCOPE/$PACKAGE_NAME,npmVersion=$PACKAGE_VERSION
 
       # Setup the requirement for npm package
       - name: Set up Node.js
@@ -144,11 +152,25 @@ jobs:
         run: npm install
       - run: npm run build
 
+      - name: Get the previous package id for the same version
+        id: version_id
+        uses: actions/github-script@v5
+        with:
+          script: |
+            const response = await github.rest.packages.getAllPackageVersionsForPackageOwnedByOrg({
+              org: context.repo.owner,
+              package_name: $PACKAGE_NAME,
+            });
+            const version = response.data.find(v => v.name === $PACKAGE_VERSION);
+            return version.id
+          result-encoding: string
+
       # Remove previous push of that version
       - uses: actions/delete-package-versions@v4
         with:
-          package-name: $PACKAGE_NAME@$PACKAGE_VERSION
+          package-name: $PACKAGE_NAME
           package-type: npm
+          package-version-ids: ${{ steps.version_id.outputs.result }}
 
       # Publish the package.
       - name: Publish the package
