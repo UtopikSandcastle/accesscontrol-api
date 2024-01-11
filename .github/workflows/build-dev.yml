@@ -160,6 +160,7 @@ jobs:
               const response = await github.rest.packages.getAllPackageVersionsForPackageOwnedByOrg({
                 org: context.repo.owner,
                 package_name: process.env.PACKAGE_NAME,
+                package_type: npm
               });
               const version = response.data.find(v => v.name === process.env.PACKAGE_VERSION);
               return version.id
