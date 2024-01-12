@@ -86,7 +86,7 @@ jobs:
         
                 const url = `https://api.github.com/orgs/${org}/packages?package_type=${packageType}`;
         
-                httpGet(url)
+                httpGet(url, process.env.GITHUB_TOKEN)
                   .then(packagesResponse => {
                     console.log('Packages:', packagesResponse);
                     // Process the packages response...
