@@ -18,32 +18,6 @@ jobs:
           script: |
             // console.log(context)
 
-            const https = require('https');
-
-            function httpGet(url, token) {
-              return new Promise((resolve, reject) => {
-                https.get(url, {
-                  headers: {
-                    'Authorization': `token ${token}`,
-                    'User-Agent': 'GitHub-Action-Script',
-                    'Accept': 'application/vnd.github.v3+json'
-                  }
-                }, (response) => {
-                  let data = '';
-    
-                  response.on('data', (chunk) => {
-                    data += chunk;
-                  });
-    
-                  response.on('end', () => {
-                    resolve(JSON.parse(data));
-                  });
-                }).on('error', (error) => {
-                  reject(error);
-                });
-              });
-            }
-
             const org = context.repo.owner;
             const repo = context.repo.repo;
 
@@ -77,24 +51,10 @@ jobs:
 
               let packagesResponse;
               try {
-                // packagesResponse = await github.rest.packages.listPackagesForOrganization({
-                //   org: org,
-                //   package_type: packageType
-                // });
-                const org = context.repo.owner;
-                const packageType = 'container'; // Adjust as needed
-        
-                const url = `https://api.github.com/orgs/${org}/packages?package_type=${packageType}`;
-        
-                httpGet(url, process.env.GITHUB_TOKEN)
-                  .then(packagesResponse => {
-                    console.log('Packages:', packagesResponse);
-                    // Process the packages response...
-                  })
-                  .catch(error => {
-                    console.error('Error:', error);
-                  });
-
+                packagesResponse = await github.rest.packages.listPackagesForOrganization({
+                  org: org,
+                  package_type: packageType
+                });
               } catch (error) {
                 console.error(`Error fetching packages of type ${packageType}:`, error);
                 continue;
