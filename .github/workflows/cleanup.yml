@@ -12,14 +12,11 @@ jobs:
 
     steps:
       - name: Delete Versions of Packages for Closed PRs
-        uses: actions/github-script@v6
+        uses: actions/github-script@v5
         with:
           script: |
             const org = context.repo.owner;
             const repo = context.repo.repo;
-
-            console.log(`Organization: ${org}`);
-            console.log(`Repository: ${repo}`);
 
             const packageTypes = ['container', 'npm', 'maven', 'rubygems', 'docker', 'nuget'];
 
@@ -38,8 +35,7 @@ jobs:
               github.rest.pulls.list({
                 owner: org,
                 repo: repo,
-                state: 'closed',
-                per_page: 100  // Fetch up to 100 closed PRs
+                state: 'closed'
               }), 
               'Fetching closed PRs'
             );
@@ -54,8 +50,7 @@ jobs:
               try {
                 packagesResponse = await github.rest.packages.listPackagesForOrganization({
                   org: org,
-                  package_type: packageType,
-                  per_page: 100
+                  package_type: packageType
                 });
               } catch (error) {
                 console.error(`Error fetching packages of type ${packageType}:`, error);
@@ -79,8 +74,11 @@ jobs:
                 for (const version of versionsResponse.data) {
                   console.log(`Checking version: ${version.name}`);
                   
-                  if (closedPrNumbers.includes(parseInt(version.name.split('.').pop()))) {
-                    console.log(`Deleting package version ${version.id} of ${packageName}`);
+                  // Extract the PR number from the version name
+                  // This regex matches both 'pr-17' and '0.0.0-pr.17'
+                  const prNumberMatch = version.name.match(/pr[.-](\d+)/);
+                  if (prNumberMatch && closedPrNumbers.includes(parseInt(prNumberMatch[1]))) {
+                    console.log(`Deleting package version ${version.id} of ${packageName} for closed PR #${prNumberMatch[1]}`);
                     await safeApiCall(
                       github.rest.packages.deletePackageVersionForOrg({
                         org: org,
