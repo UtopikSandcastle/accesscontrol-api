@@ -4,8 +4,7 @@ on:
   schedule:
     - cron: '0 0 * * 0'  # Run at 00:00 on Sunday.
   pull_request:
-    # types: [closed]
-    branches: [ "main" ]
+    types: [closed]
 
 jobs:
   delete-package-versions:

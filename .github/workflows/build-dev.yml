@@ -3,8 +3,8 @@ name: build-dev
 on:
   push:
     branches: [ "main" ]
-  # pull_request: #TODO: Debug: Remove
-    # branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
   docker:
