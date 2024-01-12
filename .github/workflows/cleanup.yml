@@ -4,7 +4,8 @@ on:
   schedule:
     - cron: '0 0 * * 0'  # Run at 00:00 on Sunday.
   pull_request:
-    types: [closed]
+    // types: [closed]
+    branches: [ "main" ]
 
 jobs:
   delete-package-versions:
@@ -19,7 +20,7 @@ jobs:
           WORKFLOW_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
         with:
           script: |
-          const octokit = github.getOctokit(process.env.WORKFLOW_TOKEN);
+            const octokit = github.getOctokit(process.env.WORKFLOW_TOKEN);
 
             const org = context.repo.owner;
             const repo = context.repo.repo;
