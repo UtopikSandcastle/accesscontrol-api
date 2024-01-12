@@ -57,7 +57,8 @@ jobs:
               try {
                 packagesResponse = await github.rest.packages.listPackagesForOrganization({
                   org: org,
-                  package_type: packageType
+                  package_type: packageType,
+                  per_page: 100
                 });
               } catch (error) {
                 console.error(`API Error for fetching packages of type ${packageType}:`, error);
