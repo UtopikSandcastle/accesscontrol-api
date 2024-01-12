@@ -4,19 +4,22 @@ on:
   schedule:
     - cron: '0 0 * * 0'  # Run at 00:00 on Sunday.
   pull_request:
-    branches: [ "main" ]
+    types: [closed]
 
 jobs:
   delete-package-versions:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Delete Versions of Packages for Closed PRs
         uses: actions/github-script@v7
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WORKFLOW_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
         with:
           script: |
-            // console.log(context)
+          const octokit = github.getOctokit(process.env.WORKFLOW_TOKEN);
 
             const org = context.repo.owner;
             const repo = context.repo.repo;
@@ -51,7 +54,7 @@ jobs:
 
               let packagesResponse;
               try {
-                packagesResponse = await github.rest.packages.listPackagesForOrganization({
+                packagesResponse = await octokit.rest.packages.listPackagesForOrganization({
                   org: org,
                   package_type: packageType
                 });
@@ -65,7 +68,7 @@ jobs:
                 console.log(`Checking package: ${packageName}`);
 
                 const versionsResponse = await safeApiCall(
-                  github.rest.packages.getAllPackageVersionsForPackageOwnedByOrg({
+                  octokit.rest.packages.getAllPackageVersionsForPackageOwnedByOrg({
                     org: org,
                     package_type: packageType,
                     package_name: packageName
@@ -83,7 +86,7 @@ jobs:
                   if (prNumberMatch && closedPrNumbers.includes(parseInt(prNumberMatch[1]))) {
                     console.log(`Deleting package version ${version.id} of ${packageName} for closed PR #${prNumberMatch[1]}`);
                     await safeApiCall(
-                      github.rest.packages.deletePackageVersionForOrg({
+                      octokit.rest.packages.deletePackageVersionForOrg({
                         org: org,
                         package_type: packageType,
                         package_name: packageName,
