@@ -20,7 +20,7 @@ jobs:
           WORKFLOW_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
         with:
           script: |
-            const { Octokit } = require('@octokit/rest');
+            const { Octokit } = require("@octokit/core");
             const octokit = github.getOctokit(process.env.WORKFLOW_TOKEN);
 
             const org = context.repo.owner;
