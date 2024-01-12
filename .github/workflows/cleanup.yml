@@ -12,19 +12,21 @@ jobs:
     steps:
       - name: Delete Versions of Packages for Closed PRs
         uses: actions/github-script@v7
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           script: |
             // console.log(context)
 
             const https = require('https');
 
-            function httpGet(url) {
+            function httpGet(url, token) {
               return new Promise((resolve, reject) => {
                 https.get(url, {
                   headers: {
-                    'Authorization': `token ${process.env.GITHUB_TOKEN}`,
+                    'Authorization': `token ${token}`,
                     'User-Agent': 'GitHub-Action-Script',
-                    'Accept': 'application/vnd.github+json'
+                    'Accept': 'application/vnd.github.v3+json'
                   }
                 }, (response) => {
                   let data = '';
@@ -92,6 +94,7 @@ jobs:
                   .catch(error => {
                     console.error('Error:', error);
                   });
+
               } catch (error) {
                 console.error(`Error fetching packages of type ${packageType}:`, error);
                 continue;
