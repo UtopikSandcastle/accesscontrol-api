@@ -23,7 +23,7 @@ jobs:
             console.debug(`repo: ${repo}`);
 
             // List of known package types - adjust based on GitHub's current API capabilities
-            const packageTypes = ['npm', 'maven', 'rubygems', 'docker', 'nuget', 'container']; // Update this list as necessary
+            const packageTypes = ['container', 'npm', 'maven', 'rubygems', 'docker', 'nuget']; // Update this list as necessary
 
             // Function to safely execute API calls
             async function safeApiCall(apiPromise, description) {
