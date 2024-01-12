@@ -4,7 +4,6 @@ on:
   schedule:
     - cron: '0 0 * * 0'  # Run at 00:00 on Sunday.
   pull_request:
-    # types: [closed]
     branches: [ "main" ]
 
 jobs:
@@ -19,13 +18,11 @@ jobs:
             const org = context.repo.owner;
             const repo = context.repo.repo;
 
-            console.debug(`org: ${org}`);
-            console.debug(`repo: ${repo}`);
+            console.log(`Organization: ${org}`);
+            console.log(`Repository: ${repo}`);
 
-            // List of known package types - adjust based on GitHub's current API capabilities
-            const packageTypes = ['container', 'npm', 'maven', 'rubygems', 'docker', 'nuget']; // Update this list as necessary
+            const packageTypes = ['container', 'npm', 'maven', 'rubygems', 'docker', 'nuget'];
 
-            // Function to safely execute API calls
             async function safeApiCall(apiPromise, description) {
               try {
                 const response = await apiPromise;
@@ -37,12 +34,12 @@ jobs:
               }
             }
 
-            // Fetch closed PRs
             const closedPrsResponse = await safeApiCall(
               github.rest.pulls.list({
                 owner: org,
                 repo: repo,
-                state: 'closed'
+                state: 'closed',
+                per_page: 100  // Fetch up to 100 closed PRs
               }), 
               'Fetching closed PRs'
             );
@@ -51,8 +48,8 @@ jobs:
             const closedPrNumbers = closedPrsResponse.data.map(pr => pr.number);
 
             for (const packageType of packageTypes) {
-              console.debug(`packageType: ${packageType}`);
-              // Fetch all packages of a specific type
+              console.log(`Checking package type: ${packageType}`);
+
               let packagesResponse;
               try {
                 packagesResponse = await github.rest.packages.listPackagesForOrganization({
@@ -61,15 +58,14 @@ jobs:
                   per_page: 100
                 });
               } catch (error) {
-                console.error(`API Error for fetching packages of type ${packageType}:`, error);
-                continue; // Skip to the next package type if an error occurs
+                console.error(`Error fetching packages of type ${packageType}:`, error);
+                continue;
               }
 
               for (const package of packagesResponse.data) {
                 const packageName = package.name;
-                console.debug(`packageName: ${packageName}`);
+                console.log(`Checking package: ${packageName}`);
 
-                // Fetch all versions for each package
                 const versionsResponse = await safeApiCall(
                   github.rest.packages.getAllPackageVersionsForPackageOwnedByOrg({
                     org: org,
@@ -80,12 +76,11 @@ jobs:
                 );
                 if (!versionsResponse) continue;
 
-                // Iterate over each version
                 for (const version of versionsResponse.data) {
-                  console.debug(`version: ${version.name}`);
-                  // Check if version corresponds to a closed PR
-                  if (closedPrNumbers.includes(parseInt(version.name))) {
-                    // Delete the package version
+                  console.log(`Checking version: ${version.name}`);
+                  
+                  if (closedPrNumbers.includes(parseInt(version.name.split('.').pop()))) {
+                    console.log(`Deleting package version ${version.id} of ${packageName}`);
                     await safeApiCall(
                       github.rest.packages.deletePackageVersionForOrg({
                         org: org,
