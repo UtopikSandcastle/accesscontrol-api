@@ -52,7 +52,7 @@ jobs:
 
               let packagesResponse;
               try {
-                packagesResponse = await octokit.rest.packages.listPackagesForOrganization({
+                packagesResponse = await github.rest.packages.listPackagesForOrganization({
                   org: org,
                   package_type: packageType
                 });
@@ -66,7 +66,7 @@ jobs:
                 console.log(`Checking package: ${packageName}`);
 
                 const versionsResponse = await safeApiCall(
-                  octokit.rest.packages.getAllPackageVersionsForPackageOwnedByOrg({
+                  github.rest.packages.getAllPackageVersionsForPackageOwnedByOrg({
                     org: org,
                     package_type: packageType,
                     package_name: packageName
@@ -84,7 +84,7 @@ jobs:
                   if (prNumberMatch && closedPrNumbers.includes(parseInt(prNumberMatch[1]))) {
                     console.log(`Deleting package version ${version.id} of ${packageName} for closed PR #${prNumberMatch[1]}`);
                     await safeApiCall(
-                      octokit.rest.packages.deletePackageVersionForOrg({
+                      github.rest.packages.deletePackageVersionForOrg({
                         org: org,
                         package_type: packageType,
                         package_name: packageName,
