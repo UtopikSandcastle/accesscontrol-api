@@ -180,7 +180,7 @@ jobs:
       # Add information to the package configuration.
       - name: Configure package
         run: |
-          jq '.repository = {"type": "git", "url": "git+https://github.com/${{ github.repository }}"}' package.json > tmp.json && mv tmp.json package.json
+          jq '.repository = {"type": "git", "url": "git+https://github.com/${{ github.repository }}.git"}' package.json > tmp.json && mv tmp.json package.json
           jq '.author = "${{ env.AUTHOR_NAME }} <${{ env.AUTHOR_EMAIL }}>"' package.json > tmp.json && mv tmp.json package.json
       - run: cat package.json
 
@@ -226,6 +226,17 @@ jobs:
       # Publish the package.
       - name: Publish the package
         run: |
+          if [[ $GITHUB_REF == refs/tags/v* ]]; then
+            TAG=$(echo '${{ github.ref }}' | sed -n 's/^v0\.0\.0-\(.*\)\.1$/\1/p')"
+            if [[ -z "$TAG" ]]; then
+              TAG='latest'
+            fi
+            npm publish --access public --tag $TAG
+          elif [ "${{ github.event_name }}" = "pull_request" ]; then
+            npm publish --access public
+          else
             npm publish --access public --tag latest
+          fi
+
         env:
           NODE_AUTH_TOKEN: ${{ env.PACKAGE_SECRET }}
