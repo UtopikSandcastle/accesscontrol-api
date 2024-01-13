@@ -80,14 +80,14 @@ jobs:
                     // For container and docker, use the tag
                     const versionTags = version.metadata.container.tags;
                     for (const tag of versionTags) {
-                      prNumberMatch = tag.match(/-(\d+)$/);
+                      prNumberMatch = tag.match(/.(\d+)$/);
                       if (prNumberMatch && closedPrNumbers.includes(parseInt(prNumberMatch[1]))) {
                         break; // Break the loop if a matching PR number is found
                       }
                     }
                   } else {
                     // For maven, rubygems, nuget, use the version name
-                    prNumberMatch = version.name.match(/-(\d+)$/);
+                    prNumberMatch = version.name.match(/.(\d+)$/);
                   }
 
                   if (prNumberMatch && closedPrNumbers.includes(parseInt(prNumberMatch[1]))) {
