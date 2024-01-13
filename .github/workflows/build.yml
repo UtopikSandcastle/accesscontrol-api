@@ -243,7 +243,7 @@ jobs:
             npm publish --access public --no-tag --verbose
           
           # If a push
-          elif [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "main") ]]; then
+          elif [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "main" ]]; then
             npm publish --access public --tag latest
 
           # Whatever else
