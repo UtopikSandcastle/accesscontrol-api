@@ -144,22 +144,22 @@ jobs:
         run: |
           # Use the version tag, if not use the PR id or the destination branch.
           if [[ $GITHUB_REF == refs/tags/v* ]]; then
-            echo "PACKAGE_REGISTRY=https://registry.npmjs.org" >> $GITHUB_ENV
-            echo "PACKAGE_SECRET=${{ secrets.NPM_TOKEN }}" >> $GITHUB_ENV
-            echo "PACKAGE_VERSION=$(echo '${{ github.ref }}' | sed 's|refs/tags/v||')" >> $GITHUB_ENV
+            echo "registry=https://registry.npmjs.org" >> $GITHUB_OUTPUT
+            echo "secret=${{ secrets.NPM_TOKEN }}" >> $GITHUB_OUTPUT
+            echo "version=$(echo '${{ github.ref }}' | sed 's|refs/tags/v||')" >> $GITHUB_OUTPUT
           else
             if [ "${{ github.event_name }}" = "pull_request" ]; then
               VERSION_SUFFIX="-pr.${{ github.event.pull_request.number }}"
             else
               VERSION_SUFFIX=$(echo "${{ github.ref }}" | sed 's|refs/heads/||' | sed 's|/|-|g')
             fi
-            echo "PACKAGE_REGISTRY=https://npm.pkg.github.com" >> $GITHUB_ENV
-            echo "PACKAGE_SECRET=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
-            echo "PACKAGE_VERSION=0.0.0$VERSION_SUFFIX" >> $GITHUB_ENV
+            echo "registry=https://npm.pkg.github.com" >> $GITHUB_OUTPUT
+            echo "secret=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_OUTPUT
+            echo "version=0.0.0$VERSION_SUFFIX" >> $GITHUB_OUTPUT
           fi
 
-          echo "PACKAGE_SCOPE=@$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
-          echo "PACKAGE_NAME=${GITHUB_REPOSITORY#*/}-client" >> $GITHUB_ENV
+          echo "scope=@$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+          echo "name=${GITHUB_REPOSITORY#*/}-client" >> $GITHUB_OUTPUT
 
       # Get a copy of the OpenAPI Configuration File in the local directory.
       - name: Download OpenAPI configuration file from artifact
@@ -177,15 +177,15 @@ jobs:
                 -i /workspace/openapi.json \
                 -g typescript-angular \
                 -o /workspace/ \
-                --additional-properties=npmName=${{ env.PACKAGE_SCOPE }}/${{ env.PACKAGE_NAME }},npmVersion=${{ env.PACKAGE_VERSION }}
+                --additional-properties=npmName=${{ steps.package.outputs.scope }}/${{ steps.package.outputs.name }},npmVersion=${{ steps.package.outputs.version }}
       
       # Setup the requirement for npm package
       - name: Set up Node.js
         uses: actions/setup-node@v4.0.1
         with:
           node-version: 18
-          registry-url: ${{ env.PACKAGE_REGISTRY }}
-          scope: ${{ env.PACKAGE_SCOPE }}
+          registry-url: ${{ steps.package.outputs.registry }}
+          scope: ${{ steps.package.outputs.scope }}
 
       # Add information to the package configuration.
       - name: Configure package
@@ -210,10 +210,10 @@ jobs:
             try {
               const response = await github.rest.packages.getAllPackageVersionsForPackageOwnedByOrg({
                 org: context.repo.owner,
-                package_name: process.env.PACKAGE_NAME,
+                package_name: process.steps.package.outputs.name,
                 package_type: 'npm'
               });
-              const version = response.data.find(v => v.name === process.env.PACKAGE_VERSION);
+              const version = response.data.find(v => v.name === process.steps.package.outputs.version);
               if (version && version.id) {
                 return version.id;
               } else {
@@ -229,7 +229,7 @@ jobs:
         if: ${{ !(startsWith(github.ref, 'refs/tags/v')) && steps.version-id.outputs.result != '0' }}
         uses: actions/delete-package-versions@v4
         with:
-          package-name: ${{ env.PACKAGE_NAME }}
+          package-name: ${{ steps.package.outputs.name }}
           package-type: 'npm'
           package-version-ids: ${{ steps.version-id.outputs.result }}
 
@@ -262,4 +262,4 @@ jobs:
           fi
 
         env:
-          NODE_AUTH_TOKEN: ${{ env.PACKAGE_SECRET }}
+          NODE_AUTH_TOKEN: ${{ steps.package.outputs.secret }}
