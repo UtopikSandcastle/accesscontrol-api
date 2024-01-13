@@ -151,7 +151,7 @@ jobs:
             if [ "${{ github.event_name }}" = "pull_request" ]; then
               VERSION_SUFFIX="-pr.${{ github.event.pull_request.number }}"
             else
-              VERSION_SUFFIX=$(echo "${{ github.ref }}" | sed 's|refs/heads/||' | sed 's|/|-|g')
+              VERSION_SUFFIX=$(basename "${{ github.ref }}")
             fi
             echo "registry=https://npm.pkg.github.com" >> $GITHUB_OUTPUT
             echo "secret=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_OUTPUT
