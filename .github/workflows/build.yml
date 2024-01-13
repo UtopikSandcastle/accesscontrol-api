@@ -234,7 +234,7 @@ jobs:
             fi
             npm publish --access public --tag $TAG
           elif [ "${{ github.event_name }}" = "pull_request" ]; then
-            npm publish --access public --verbose
+            npm publish --access public --no-tag --verbose
           else
             npm publish --access public --tag latest
           fi
