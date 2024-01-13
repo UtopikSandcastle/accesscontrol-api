@@ -146,7 +146,7 @@ jobs:
             echo "PACKAGE_REGISTRY='https://npm.pkg.github.com'" >> $GITHUB_ENV
             echo "PACKAGE_SECRET=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
             echo "PACKAGE_VERSION=0.0.0$VERSION_SUFFIX" >> $GITHUB_ENV
-          if
+          fi
 
           echo "PACKAGE_SCOPE=@$(echo '${GITHUB_REPOSITORY%%/*}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
           echo "PACKAGE_NAME=${GITHUB_REPOSITORY#*/}-client" >> $GITHUB_ENV
