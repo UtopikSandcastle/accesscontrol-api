@@ -83,7 +83,7 @@ jobs:
           if [[ -z $MODIFIED_TAGS ]]; then
             MODIFIED_TAGS=$TAGS
           fi
-          echo "tags=$MODIFIED_TAGS" >> $GITHUB_ENV
+          echo "tags=$MODIFIED_TAGS" >> $GITHUB_OUTPUT
 
       # Build and push Docker image with Buildx
       # https://github.com/docker/build-push-action
