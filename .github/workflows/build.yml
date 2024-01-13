@@ -210,10 +210,10 @@ jobs:
             try {
               const response = await github.rest.packages.getAllPackageVersionsForPackageOwnedByOrg({
                 org: context.repo.owner,
-                package_name: steps.package.outputs.name,
+                package_name: ${{ steps.package.outputs.name }},
                 package_type: 'npm'
               });
-              const version = response.data.find(v => v.name === steps.package.outputs.version);
+              const version = response.data.find(v => v.name === ${{ steps.package.outputs.version }});
               if (version && version.id) {
                 return version.id;
               } else {
