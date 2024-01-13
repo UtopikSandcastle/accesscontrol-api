@@ -80,6 +80,9 @@ jobs:
         run: |
           TAGS="${{ steps.meta.outputs.tags }}"
           MODIFIED_TAGS=$(echo "$TAGS" | sed 's/pr-/pr\./g')
+          if [[ -z $MODIFIED_TAGS ]]; then
+            MODIFIED_TAGS=$TAGS
+          fi
           echo "tags=$MODIFIED_TAGS" >> $GITHUB_ENV
 
       # Build and push Docker image with Buildx
