@@ -2,10 +2,11 @@ name: build
 
 on:
   push:
-    tags: [ 'v*.*.*' ]
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    branches: [ "disable" ] #TODO: Debug: Remove me
+  #   tags: [ 'v*.*.*' ]
+  #   branches: [ "main" ]
+  # pull_request:
+  #   branches: [ "main" ]
 
 # Secrets:
 #   DOCKERHUB_USERNAME
