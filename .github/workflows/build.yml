@@ -224,19 +224,31 @@ jobs:
           package-version-ids: ${{ steps.version_id.outputs.result }}
 
       # Publish the package.
+      # If it's from a git tag, the package is published to npmjs.com and 
+      # the subversion name set as tag.
+      # If it's from a PR, the package is published to github and no tag is set.
+      # If none above, the package is published to github and the latest tag is set.
       - name: Publish the package
         run: |
-          npm config list #TODO: Debug: Remove
+          # If git tag
           if [[ $GITHUB_REF == refs/tags/v* ]]; then
             TAG=$(echo '${{ github.ref }}' | sed -n 's/^v0\.0\.0-\(.*\)\.1$/\1/p')
             if [[ -z "$TAG" ]]; then
               TAG='latest'
             fi
             npm publish --access public --tag $TAG
-          elif [ "${{ github.event_name }}" = "pull_request" ]; then
+
+          # If Pull Request
+          elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
             npm publish --access public --no-tag --verbose
-          else
+          
+          # If a push
+          elif [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "main") ]]; then
             npm publish --access public --tag latest
+
+          # Whatever else
+          else
+            npm publish --access public --tag $(basename "${{ github.ref }}")
           fi
 
         env:
