@@ -265,6 +265,7 @@ jobs:
 
   delete-package-pr:
     # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: openapi-typescript-angular
     runs-on: ubuntu-latest
     permissions:
       contents: read
