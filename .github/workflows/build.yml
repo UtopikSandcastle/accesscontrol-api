@@ -249,7 +249,7 @@ jobs:
 
           # If Pull Request
           elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            npm publish --access public --no-tag --verbose
+            npm publish ./dist --access public --no-tag --verbose
           
           # If a push
           elif [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "main" ]]; then
