@@ -241,7 +241,7 @@ jobs:
         run: |
           # If git tag
           if [[ $GITHUB_REF == refs/tags/v* ]]; then
-            TAG=$(echo '${{ github.ref }}' | sed -n 's/^v0\.0\.0-\(.*\)\.1$/\1/p')
+            TAG=$(echo '${{ github.ref }}' | sed -n 's/.*-\(.*\)\..*/\1/')
             if [[ -z "$TAG" ]]; then
               TAG='latest'
             fi

@@ -4,7 +4,7 @@
   "dockerComposeFile": "docker-compose.yml",
   "service": "devcontainer",
   "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
-
+  
   "remoteEnv": {
     "ASPNETCORE_Kestrel__Certificates__Default__Password": "SecurePwdGoesHere",
     "ASPNETCORE_Kestrel__Certificates__Default__Path": "${containerEnv:HOME:/home/vscode}/.aspnet/https/aspnetapp.pfx"
@@ -12,6 +12,10 @@
 
   // Use 'postCreateCommand' to run commands after the container is created.
   "postCreateCommand": "./.devcontainer/postCreateCommand.sh",
+
+  "otherPortsAttributes": {
+    "onAutoForward": "silent"
+  },
 
   // Configure tool-specific properties.
   "customizations": {

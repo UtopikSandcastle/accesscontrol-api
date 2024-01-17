@@ -9,10 +9,8 @@ services:
 
   mongo:
     image: mongo:7.0.4
-    restart: unless-stopped
 
   mongo-express:
     image: mongo-express
     ports:
       - :8081
-    restart: unless-stopped
