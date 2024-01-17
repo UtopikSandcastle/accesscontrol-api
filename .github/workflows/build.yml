@@ -245,7 +245,7 @@ jobs:
             if [[ -z "$TAG" ]]; then
               TAG='latest'
             fi
-            npm publish --access public --tag $TAG
+            npm publish ./dist --access public --tag $TAG
 
           # If Pull Request
           elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
@@ -253,11 +253,11 @@ jobs:
           
           # If a push
           elif [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "main" ]]; then
-            npm publish --access public --tag latest
+            npm publish ./dist --access public --tag latest
 
           # Whatever else
           else
-            npm publish --access public --tag $(basename "${{ github.ref }}")
+            npm publish ./dist --access public --tag $(basename "${{ github.ref }}")
           fi
 
         env:
