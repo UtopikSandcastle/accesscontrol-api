@@ -263,8 +263,8 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ steps.package.outputs.secret }}
 
-  delete-package-pr:
-    # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+  clean-up:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: openapi-typescript-angular
     runs-on: ubuntu-latest
     permissions:
