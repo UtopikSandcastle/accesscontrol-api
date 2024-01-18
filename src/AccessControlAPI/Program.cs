@@ -38,6 +38,9 @@ if (app.Environment.IsDevelopment())
     c.InjectStylesheet("/swagger/custom.css");
     c.RoutePrefix = String.Empty;
   });
+  app.UseCors(builder => builder.AllowAnyOrigin()); // Allow requests from any origin
+  app.UseCors(builder => builder.AllowAnyHeader()); // Allow any header in the request
+  app.UseCors(builder => builder.AllowAnyMethod()); // Allow any HTTP method in the request
 }
 
 app.UseHttpsRedirection();
