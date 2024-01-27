@@ -1,4 +1,5 @@
 
+using System.ComponentModel.DataAnnotations;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using MongoDB.Bson;
@@ -14,6 +15,7 @@ public class AccessControlSystem
   [BsonRepresentation(BsonType.ObjectId)]
   [SwaggerSchema(ReadOnly = true)]
   public string? Id { get; set; }
+  [Required]
   public required string Name { get; set; }
   public List<string> AccessControlDeviceIds { get; set; } = new List<string>() { };
 }

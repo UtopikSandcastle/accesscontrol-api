@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using Swashbuckle.AspNetCore.Annotations;
@@ -17,6 +18,7 @@ public class AccessControlDevice
   [SwaggerSchema(ReadOnly = true)]
   public string? Id { get; set; }
 
+  [Required]
   public required string Name { get; set; }
 
   public AccessControlDeviceType Type { get; set; }
