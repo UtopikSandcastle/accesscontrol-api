@@ -34,4 +34,13 @@ public class AccessControlDevicesService
 
   public async Task RemoveAsync(string id) =>
     await _accesControlDevicesCollection.DeleteOneAsync(x => x.Id == id);
+
+  public async Task SeedDataAsync()
+  {
+    var existingDataCount = await _accesControlDevicesCollection.CountDocumentsAsync(FilterDefinition<AccessControlDevice>.Empty);
+    if (existingDataCount == 0)
+    {
+      await _accesControlDevicesCollection.InsertManyAsync(SeedData.AccessControlDevice);
+    }
+  }
 }

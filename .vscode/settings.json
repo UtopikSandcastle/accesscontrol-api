@@ -14,5 +14,10 @@
     "titleBar.activeForeground": "#ffffff",
     "titleBar.inactiveBackground": "#39b0ff",
     "titleBar.inactiveForeground": "#cccccc",
+  },
+  "editor.formatOnSave": true,
+  "editor.tabSize": 2,
+  "[csharp]": {
+    "editor.defaultFormatter": "ms-dotnettools.csharp"
   }
 }

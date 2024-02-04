@@ -1,4 +1,6 @@
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
+using MongoDB.Driver;
 using UtopikSandcastle.AccessControl.API;
 using UtopikSandcastle.AccessControl.API.Models;
 using UtopikSandcastle.AccessControl.API.Services;
@@ -38,9 +40,17 @@ if (app.Environment.IsDevelopment())
     c.InjectStylesheet("/swagger/custom.css");
     c.RoutePrefix = String.Empty;
   });
-  app.UseCors(builder => builder.AllowAnyOrigin()); // Allow requests from any origin
-  app.UseCors(builder => builder.AllowAnyHeader()); // Allow any header in the request
-  app.UseCors(builder => builder.AllowAnyMethod()); // Allow any HTTP method in the request
+  app.UseCors(builder => builder
+    .AllowAnyHeader()
+    .AllowAnyMethod()
+    .SetIsOriginAllowed((host) => true)
+    .AllowCredentials());
+  // app.UseCors(builder => builder.AllowAnyOrigin()); // Allow requests from any origin
+  // app.UseCors(builder => builder.AllowAnyHeader()); // Allow any header in the request
+  // app.UseCors(builder => builder.AllowAnyMethod()); // Allow any HTTP method in the request
+
+  var devicesService = app.Services.GetRequiredService<AccessControlDevicesService>();
+  await devicesService.SeedDataAsync();
 }
 
 app.UseHttpsRedirection();
