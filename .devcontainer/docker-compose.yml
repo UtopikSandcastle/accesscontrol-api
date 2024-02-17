@@ -1,6 +1,6 @@
 services:
   devcontainer:
-    image: mcr.microsoft.com/devcontainers/dotnet:1-7.0-bookworm
+    image: mcr.microsoft.com/devcontainers/dotnet:8.0
     volumes:
       - ../..:/workspaces:cached
       - ~/.aspnet/https:/home/vscode/.aspnet/https

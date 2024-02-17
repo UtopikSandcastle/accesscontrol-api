@@ -4,47 +4,52 @@ namespace UtopikSandcastle.AccessControl.API;
 
 public static class SeedData
 {
-  public static List<AccessControlDevice> AccessControlDevice = new() {
+  public static List<AccessControlDevice> AccessControlDevice = [
     new() {
       Name = "Front Drawbridge",
       Type = AccessControlDeviceType.Drawbridge,
-      Outputs = new List<bool> {true, true},
-      Inputs = new List<bool> {false}
+      Outputs = [true], // Closed
+      Inputs = [false] // Open button
     },
     new() {
       Name = "Back Drawbridge",
       Type = AccessControlDeviceType.Drawbridge,
-      Outputs = new List<bool> {true, true},
-      Inputs = new List<bool> {false}
+      Outputs = [false], // Closed
+      Inputs = [false] // Open button
     },
     new() {
-      Name = "Front Gate",
-      Type = AccessControlDeviceType.Gate,
-      Outputs = new List<bool> {true},
-      Inputs = new List<bool> {false}
+      Name = "Front Door",
+      Type = AccessControlDeviceType.Door,
+      Outputs = [true, false], // Closed, Locked
+      Inputs = [false] // Open button
     },
     new() {
-      Name = "Back Gate",
-      Type = AccessControlDeviceType.Gate,
-      Outputs = new List<bool> {true},
-      Inputs = new List<bool> {false}
+      Name = "Back Door",
+      Type = AccessControlDeviceType.Door,
+      Outputs = [true, true], // Closed, Locked
+      Inputs = [false] // Open button
     },
     new() {
       Name = "Front Porticullis",
       Type = AccessControlDeviceType.Portcullis,
-      Outputs = new List<bool> {true},
-      Inputs = new List<bool> {false}
+      Outputs = [true], // Closed
+      Inputs = [false] // Open button
     },
     new() {
       Name = "Back Porticullis",
       Type = AccessControlDeviceType.Portcullis,
-      Outputs = new List<bool> {true},
-      Inputs = new List<bool> {false}
+      Outputs = [true], // Closed
+      Inputs = [false] // Open button
     },
     new() {
       Name = "Postern Gate",
       Type = AccessControlDeviceType.PosternGate,
-      Outputs = new List<bool> {true}
+      Outputs = [true, true] // Closed, Locked
     },
-  };
+    new() {
+      Name="Garden Gate",
+      Type=AccessControlDeviceType.Gate,
+      Outputs=[true] // Closed
+    }
+  ];
 }

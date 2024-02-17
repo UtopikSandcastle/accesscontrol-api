@@ -7,6 +7,7 @@ namespace UtopikSandcastle.AccessControl.API.Models;
 
 public enum AccessControlDeviceType
 {
+  Door,
   Drawbridge,
   Gate,
   Portcullis,

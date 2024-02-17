@@ -7,7 +7,7 @@
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/UtopikSandcastle.AccessControl.API.sln",
+        "${workspaceFolder}/src/AccessControlAPI/UtopikSandcastle.AccessControl.API.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary;ForceNoAlign"
       ],
@@ -19,7 +19,7 @@
       "type": "process",
       "args": [
         "publish",
-        "${workspaceFolder}/UtopikSandcastle.AccessControl.API.sln",
+        "${workspaceFolder}/src/AccessControlAPI/UtopikSandcastle.AccessControl.API.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary;ForceNoAlign"
       ],
@@ -33,7 +33,7 @@
         "watch",
         "run",
         "--project",
-        "${workspaceFolder}/UtopikSandcastle.AccessControl.API.sln"
+        "${workspaceFolder}/src/AccessControlAPI/UtopikSandcastle.AccessControl.API.csproj"
       ],
       "problemMatcher": "$msCompile"
     }

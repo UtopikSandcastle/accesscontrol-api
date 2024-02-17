@@ -17,7 +17,6 @@
   },
   "editor.formatOnSave": true,
   "editor.tabSize": 2,
-  "[csharp]": {
-    "editor.defaultFormatter": "ms-dotnettools.csharp"
-  }
+  // "csharp.format.enable": true,
+  // "dotnet.server.useOmnisharp": true
 }

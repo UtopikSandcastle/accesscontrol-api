@@ -10,7 +10,7 @@
       "request": "launch",
       "preLaunchTask": "build",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/src/AccessControlAPI/bin/Debug/net7.0/UtopikSandcastle.AccessControl.API.dll",
+      "program": "${workspaceFolder}/src/AccessControlAPI/bin/Debug/net8.0/UtopikSandcastle.AccessControl.API.dll",
       "args": [],
       "cwd": "${workspaceFolder}/src/AccessControlAPI",
       "stopAtEntry": false,
