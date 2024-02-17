@@ -13,7 +13,7 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-openapi
 WORKDIR /App
 COPY --from=build-env /App/out .
 RUN dotnet new tool-manifest
-RUN dotnet tool install Swashbuckle.AspNetCore.Cli
+RUN dotnet tool install DotSwashbuckle.AspNetCore.Cli
 RUN dotnet swagger tofile --yaml --output openapi.json `echo $(basename /App/*.deps.json .deps.json)`.dll v1
 
 # Build runtime image

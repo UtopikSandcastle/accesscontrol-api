@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using Swashbuckle.AspNetCore.Annotations;
+using DotSwashbuckle.AspNetCore.Annotations;
 
 namespace UtopikSandcastle.AccessControl.API.Models;
 

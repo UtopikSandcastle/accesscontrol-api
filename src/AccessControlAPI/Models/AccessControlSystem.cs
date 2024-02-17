@@ -1,11 +1,10 @@
 
 using System.ComponentModel.DataAnnotations;
+using DotSwashbuckle.AspNetCore.Annotations;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using Swashbuckle.AspNetCore.Annotations;
-using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace UtopikSandcastle.AccessControl.API.Models;
 
