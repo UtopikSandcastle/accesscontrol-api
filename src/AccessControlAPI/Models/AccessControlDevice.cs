@@ -26,6 +26,7 @@ public class AccessControlDevice
 
   public AccessControlDeviceType Type { get; set; }
 
+  [SwaggerSchema(ReadOnly = true)]
   public List<bool>? Outputs { get; set; }
 
   public List<bool>? Inputs { get; set; }
