@@ -1,24 +1,18 @@
-using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Mvc;
-using UtopikSandcastle.AccessControl.API.Models;
-using UtopikSandcastle.AccessControl.API.Services;
+using UtopikSandcastle.AccessControlAPI.Models;
+using UtopikSandcastle.AccessControlAPI.Services;
 
-namespace UtopikSandcastle.AccessControl.API.Controllers;
+namespace UtopikSandcastle.AccessControlAPI.Controllers;
 
 [ApiController]
 [Route("api/v1/[controller]")]
-public class AccessControlDeviceController : ControllerBase
+public class AccessControlDeviceController(AccessControlDevicesService accessControlDevicesService) : ControllerBase
 {
-  private readonly AccessControlDevicesService _accessControlDevicesService;
-
-  public AccessControlDeviceController(AccessControlDevicesService accessControlDevicesService)
-  {
-    _accessControlDevicesService = accessControlDevicesService;
-  }
+  private readonly AccessControlDevicesService _accessControlDevicesService = accessControlDevicesService;
 
   [HttpGet]
   public async Task<List<AccessControlDevice>> Get() =>
-    await _accessControlDevicesService.GetAsync();
+  await _accessControlDevicesService.GetAsync();
 
   [HttpGet("{id:length(24)}")]
   public async Task<ActionResult<AccessControlDevice>> Get(string id)
@@ -71,5 +65,25 @@ public class AccessControlDeviceController : ControllerBase
     await _accessControlDevicesService.RemoveAsync(id);
 
     return NoContent();
+  }
+
+    [HttpPost("{id:length(24)}/Open")]
+  public async Task<IActionResult> PostOpen(string id)
+  {
+    await _accessControlDevicesService.OpenAsync(id);
+
+    return Ok();
+  }
+
+  [HttpPost("{id:length(24)}/Lock")]
+  public async Task<IActionResult> PostLock(string id)
+  {
+    bool result = await _accessControlDevicesService.LockAsync(id);
+
+    if (!result)
+    {
+      return Problem("Cannot be locked.");
+    }
+    return Ok();
   }
 }

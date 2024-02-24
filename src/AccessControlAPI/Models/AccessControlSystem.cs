@@ -1,12 +1,9 @@
-
-using System.ComponentModel.DataAnnotations;
 using DotSwashbuckle.AspNetCore.Annotations;
-using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Models;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using System.ComponentModel.DataAnnotations;
 
-namespace UtopikSandcastle.AccessControl.API.Models;
+namespace UtopikSandcastle.AccessControlAPI.Models;
 
 public class AccessControlSystem
 {
@@ -16,5 +13,5 @@ public class AccessControlSystem
   public string? Id { get; set; }
   [Required]
   public required string Name { get; set; }
-  public List<string> AccessControlDeviceIds { get; set; } = new List<string>() { };
+  public required Dictionary<string, List<AccessControlSystemComponent>> Components { get; set; }
 }

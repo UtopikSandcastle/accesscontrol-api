@@ -1,18 +1,9 @@
-using System.ComponentModel.DataAnnotations;
+using DotSwashbuckle.AspNetCore.Annotations;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using DotSwashbuckle.AspNetCore.Annotations;
+using System.ComponentModel.DataAnnotations;
 
-namespace UtopikSandcastle.AccessControl.API.Models;
-
-public enum AccessControlDeviceType
-{
-  Door,
-  Drawbridge,
-  Gate,
-  Portcullis,
-  PosternGate,
-}
+namespace UtopikSandcastle.AccessControlAPI.Models;
 
 public class AccessControlDevice
 {
@@ -24,10 +15,8 @@ public class AccessControlDevice
   [Required]
   public required string Name { get; set; }
 
-  public AccessControlDeviceType Type { get; set; }
+  public required bool[] Inputs { get; set; }
 
   [SwaggerSchema(ReadOnly = true)]
-  public List<bool>? Outputs { get; set; }
-
-  public List<bool>? Inputs { get; set; }
+  public required bool[] Outputs { get; set; }
 }

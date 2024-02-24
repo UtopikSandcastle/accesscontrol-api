@@ -1,9 +1,6 @@
 using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
-using MongoDB.Driver;
-using UtopikSandcastle.AccessControl.API;
-using UtopikSandcastle.AccessControl.API.Models;
-using UtopikSandcastle.AccessControl.API.Services;
+using UtopikSandcastle.AccessControlAPI.Models;
+using UtopikSandcastle.AccessControlAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,9 +42,6 @@ if (app.Environment.IsDevelopment())
     .AllowAnyMethod()
     .SetIsOriginAllowed((host) => true)
     .AllowCredentials());
-  // app.UseCors(builder => builder.AllowAnyOrigin()); // Allow requests from any origin
-  // app.UseCors(builder => builder.AllowAnyHeader()); // Allow any header in the request
-  // app.UseCors(builder => builder.AllowAnyMethod()); // Allow any HTTP method in the request
 
   var devicesService = app.Services.GetRequiredService<AccessControlDevicesService>();
   await devicesService.SeedDataAsync();

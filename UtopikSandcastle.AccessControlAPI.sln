@@ -5,7 +5,7 @@ VisualStudioVersion = 17.5.002.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{48D8DEB1-1E6B-4766-BA77-2F5F3E63D8EA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UtopikSandcastle.AccessControl.API", "src\AccessControlAPI\UtopikSandcastle.AccessControl.API.csproj", "{C4F6C62B-4AC5-474E-A25F-C32743E2E59A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UtopikSandcastle.AccessControlAPI", "src\AccessControlAPI\UtopikSandcastle.AccessControlAPI.csproj", "{C4F6C62B-4AC5-474E-A25F-C32743E2E59A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

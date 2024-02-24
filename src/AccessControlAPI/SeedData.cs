@@ -1,55 +1,49 @@
-﻿using UtopikSandcastle.AccessControl.API.Models;
+﻿using UtopikSandcastle.AccessControlAPI.Models;
 
-namespace UtopikSandcastle.AccessControl.API;
+namespace UtopikSandcastle.AccessControlAPI;
 
 public static class SeedData
 {
-  public static List<AccessControlDevice> AccessControlDevice = [
+  public static readonly List<AccessControlDevice> AccessControlDevice = [
     new() {
       Name = "Front Drawbridge",
-      Type = AccessControlDeviceType.Drawbridge,
-      Outputs = [true], // Closed
+      Outputs = [false], // Opened
       Inputs = [false] // Open button
     },
     new() {
       Name = "Back Drawbridge",
-      Type = AccessControlDeviceType.Drawbridge,
-      Outputs = [false], // Closed
+      Outputs = [false], // Opened
       Inputs = [false] // Open button
     },
     new() {
       Name = "Front Door",
-      Type = AccessControlDeviceType.Door,
-      Outputs = [true, false], // Closed, Locked
-      Inputs = [false] // Open button
+      Outputs = [false], // Opened
+      Inputs = [false, false] // Open button, Lock button
     },
     new() {
       Name = "Back Door",
-      Type = AccessControlDeviceType.Door,
-      Outputs = [true, true], // Closed, Locked
-      Inputs = [false] // Open button
+      Outputs = [false], // Opened
+      Inputs = [false, true] // Open button, Lock button
     },
     new() {
       Name = "Front Porticullis",
-      Type = AccessControlDeviceType.Portcullis,
-      Outputs = [true], // Closed
+      Outputs = [false], // Opened
       Inputs = [false] // Open button
     },
     new() {
       Name = "Back Porticullis",
-      Type = AccessControlDeviceType.Portcullis,
-      Outputs = [true], // Closed
+      Outputs = [false], // Opened
       Inputs = [false] // Open button
     },
     new() {
       Name = "Postern Gate",
-      Type = AccessControlDeviceType.PosternGate,
-      Outputs = [true, true] // Closed, Locked
+      Outputs = [false], // Opened
+      Inputs = [true] // Locked
     },
     new() {
       Name="Garden Gate",
-      Type=AccessControlDeviceType.Gate,
-      Outputs=[true] // Closed
+      Outputs=[true], // Opened
+      Inputs=[]
     }
   ];
 }

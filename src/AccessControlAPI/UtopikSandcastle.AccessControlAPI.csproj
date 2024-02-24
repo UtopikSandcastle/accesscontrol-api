@@ -10,7 +10,7 @@
   <ItemGroup>
     <PackageReference Include="MongoDB.Driver" Version="2.23.1" />
     <PackageReference Include="DotSwashbuckle.AspNetCore" Version="3.0.3" />
-    <PackageReference Include="DotSwashbuckle.AspNetCore.Annotations" Version="3.0.1" />
+    <PackageReference Include="DotSwashbuckle.AspNetCore.Annotations" Version="3.0.3" />
   </ItemGroup>
 
 </Project>
