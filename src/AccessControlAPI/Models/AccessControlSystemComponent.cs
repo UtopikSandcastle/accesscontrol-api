@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using UtopikSandcastle.AccessControlAPI.Services;
 
 namespace UtopikSandcastle.AccessControlAPI.Models;
 
@@ -11,18 +12,30 @@ public enum AccessControlSystemComponentType
   PosternGate,
 }
 
-public class AccessControlSystemComponent(AccessControlDevice accessControlDevice)
+public class AccessControlSystemComponent(AccessControlDevicesService accessControlDevicesService)
 {
-  private readonly AccessControlDevice _accessControlDevice = accessControlDevice;
+  private readonly AccessControlDevicesService _accessControlDevicesService = accessControlDevicesService;
 
-  private string? _accessControlDeviceId;
+  private AccessControlDevice? _accessControlDevice;
+
   public string? AccessControlDeviceId
   {
-    get { return _accessControlDevice.Id; }
-    set { _accessControlDeviceId = value; }
+    get { return _accessControlDevice?.Id; }
+    set
+    {
+      if (value != null)
+      {
+        _ = SetAccessControlDeviceAsync(value);
+      }
+    }
   }
 
-  public string Name => _accessControlDevice.Name;
+  private async Task SetAccessControlDeviceAsync(string deviceId)
+  {
+    _accessControlDevice = await _accessControlDevicesService.GetAsync(deviceId);
+  }
+
+  public string? Name => _accessControlDevice?.Name;
 
   [Required]
   public AccessControlSystemComponentType Type { get; set; }
@@ -49,11 +62,11 @@ public class AccessControlSystemComponent(AccessControlDevice accessControlDevic
     {
       return Type switch
       {
-        AccessControlSystemComponentType.Door => _accessControlDevice.Outputs[0],
-        AccessControlSystemComponentType.Drawbridge => _accessControlDevice.Outputs[0],
-        AccessControlSystemComponentType.Gate => _accessControlDevice.Outputs[0],
-        AccessControlSystemComponentType.Portcullis => _accessControlDevice.Outputs[0],
-        AccessControlSystemComponentType.PosternGate => _accessControlDevice.Outputs[0],
+        AccessControlSystemComponentType.Door => _accessControlDevice?.Outputs[0],
+        AccessControlSystemComponentType.Drawbridge => _accessControlDevice?.Outputs[0],
+        AccessControlSystemComponentType.Gate => _accessControlDevice?.Outputs[0],
+        AccessControlSystemComponentType.Portcullis => _accessControlDevice?.Outputs[0],
+        AccessControlSystemComponentType.PosternGate => _accessControlDevice?.Outputs[0],
         _ => null,
       };
     }
@@ -80,11 +93,11 @@ public class AccessControlSystemComponent(AccessControlDevice accessControlDevic
     {
       return Type switch
       {
-        AccessControlSystemComponentType.Door => _accessControlDevice.Inputs[1],
+        AccessControlSystemComponentType.Door => _accessControlDevice?.Inputs[1],
         AccessControlSystemComponentType.Drawbridge => null,
         AccessControlSystemComponentType.Gate => null,
         AccessControlSystemComponentType.Portcullis => null,
-        AccessControlSystemComponentType.PosternGate => _accessControlDevice.Inputs[0],
+        AccessControlSystemComponentType.PosternGate => _accessControlDevice?.Inputs[0],
         _ => null,
       };
     }
