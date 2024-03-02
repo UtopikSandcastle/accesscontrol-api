@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace UtopikSandcastle.AccessControlAPI.Models;
 
 public enum AccessControlSystemComponentType
@@ -13,30 +15,31 @@ public class AccessControlSystemComponent(AccessControlDevice accessControlDevic
 {
   private readonly AccessControlDevice _accessControlDevice = accessControlDevice;
 
-  public string? AccessControlDeviceId => _accessControlDevice.Id;
+  private string? _accessControlDeviceId;
+  public string? AccessControlDeviceId
+  {
+    get { return _accessControlDevice.Id; }
+    set { _accessControlDeviceId = value; }
+  }
 
   public string Name => _accessControlDevice.Name;
 
+  [Required]
   public AccessControlSystemComponentType Type { get; set; }
 
   public bool IsOpenable
   {
     get
     {
-      switch (Type)
+      return Type switch
       {
-        case AccessControlSystemComponentType.Door:
-          return true;
-        case AccessControlSystemComponentType.Drawbridge:
-          return true;
-        case AccessControlSystemComponentType.Gate:
-          return false;
-        case AccessControlSystemComponentType.Portcullis:
-          return true;
-        case AccessControlSystemComponentType.PosternGate:
-          return true;
-      }
-      return false;
+        AccessControlSystemComponentType.Door => true,
+        AccessControlSystemComponentType.Drawbridge => true,
+        AccessControlSystemComponentType.Gate => false,
+        AccessControlSystemComponentType.Portcullis => true,
+        AccessControlSystemComponentType.PosternGate => true,
+        _ => false,
+      };
     }
   }
 
@@ -44,20 +47,15 @@ public class AccessControlSystemComponent(AccessControlDevice accessControlDevic
   {
     get
     {
-      switch (Type)
+      return Type switch
       {
-        case AccessControlSystemComponentType.Door:
-          return _accessControlDevice.Outputs[0];
-        case AccessControlSystemComponentType.Drawbridge:
-          return _accessControlDevice.Outputs[0];
-        case AccessControlSystemComponentType.Gate:
-          return _accessControlDevice.Outputs[0];
-        case AccessControlSystemComponentType.Portcullis:
-          return _accessControlDevice.Outputs[0];
-        case AccessControlSystemComponentType.PosternGate:
-          return _accessControlDevice.Outputs[0];
-      }
-      return null;
+        AccessControlSystemComponentType.Door => _accessControlDevice.Outputs[0],
+        AccessControlSystemComponentType.Drawbridge => _accessControlDevice.Outputs[0],
+        AccessControlSystemComponentType.Gate => _accessControlDevice.Outputs[0],
+        AccessControlSystemComponentType.Portcullis => _accessControlDevice.Outputs[0],
+        AccessControlSystemComponentType.PosternGate => _accessControlDevice.Outputs[0],
+        _ => null,
+      };
     }
   }
 
@@ -65,40 +63,30 @@ public class AccessControlSystemComponent(AccessControlDevice accessControlDevic
   {
     get
     {
-      switch (Type)
+      return Type switch
       {
-        case AccessControlSystemComponentType.Door:
-          return true;
-        case AccessControlSystemComponentType.Drawbridge:
-          return false;
-        case AccessControlSystemComponentType.Gate:
-          return false;
-        case AccessControlSystemComponentType.Portcullis:
-          return false;
-        case AccessControlSystemComponentType.PosternGate:
-          return true;
-      }
-      return false;
+        AccessControlSystemComponentType.Door => true,
+        AccessControlSystemComponentType.Drawbridge => false,
+        AccessControlSystemComponentType.Gate => false,
+        AccessControlSystemComponentType.Portcullis => false,
+        AccessControlSystemComponentType.PosternGate => true,
+        _ => false,
+      };
     }
   }
   public bool? Locked
   {
     get
     {
-      switch (Type)
+      return Type switch
       {
-        case AccessControlSystemComponentType.Door:
-          return _accessControlDevice.Inputs[1];
-        case AccessControlSystemComponentType.Drawbridge:
-          return null;
-        case AccessControlSystemComponentType.Gate:
-          return null;
-        case AccessControlSystemComponentType.Portcullis:
-          return null;
-        case AccessControlSystemComponentType.PosternGate:
-          return _accessControlDevice.Inputs[0];
-      }
-      return null;
+        AccessControlSystemComponentType.Door => _accessControlDevice.Inputs[1],
+        AccessControlSystemComponentType.Drawbridge => null,
+        AccessControlSystemComponentType.Gate => null,
+        AccessControlSystemComponentType.Portcullis => null,
+        AccessControlSystemComponentType.PosternGate => _accessControlDevice.Inputs[0],
+        _ => null,
+      };
     }
   }
 }
