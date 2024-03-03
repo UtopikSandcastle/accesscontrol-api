@@ -10,9 +10,9 @@ public class AccessControlSystemController(AccessControlSystemsService accessCon
 {
   private readonly AccessControlSystemsService _accessControlSystemsService = accessControlSystemsService;
 
-    [HttpGet]
+  [HttpGet]
   public async Task<List<AccessControlSystem>> Get() =>
-    await _accessControlSystemsService.GetAsync();
+  await _accessControlSystemsService.GetAsync();
 
   [HttpGet("{id:length(24)}")]
   public async Task<ActionResult<AccessControlSystem>> Get(string id)
