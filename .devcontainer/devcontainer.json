@@ -10,9 +10,6 @@
   },
   // Use 'postCreateCommand' to run commands after the container is created.
   "postCreateCommand": "./.devcontainer/postCreateCommand.sh",
-  "forwardPorts": [
-    8091
-  ],
   "portsAttributes": {
     "7291": {
       "label": "https",

@@ -13,5 +13,5 @@ public class AccessControlSystem
   public string? Id { get; set; }
   [Required]
   public required string Name { get; set; }
-  public required List<AccessControlSystemComponent> Components { get; set; }
+  public List<AccessControlSystemComponent>? Components { get; set; }
 }
