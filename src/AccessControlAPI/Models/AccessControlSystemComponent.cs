@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using UtopikSandcastle.AccessControlAPI.Services;
 
 namespace UtopikSandcastle.AccessControlAPI.Models;
 
@@ -24,18 +23,18 @@ public class AccessControlSystemComponent()
 
   public bool IsOpenable
   {
-    get;
-    // {
-    //   return Type switch
-    //   {
-    //     AccessControlSystemComponentType.Door => true,
-    //     AccessControlSystemComponentType.Drawbridge => true,
-    //     AccessControlSystemComponentType.Gate => false,
-    //     AccessControlSystemComponentType.Portcullis => true,
-    //     AccessControlSystemComponentType.PosternGate => true,
-    //     _ => false,
-    //   };
-    // }
+    get
+    {
+      return Type switch
+      {
+        AccessControlSystemComponentType.Door => true,
+        AccessControlSystemComponentType.Drawbridge => true,
+        AccessControlSystemComponentType.Gate => false,
+        AccessControlSystemComponentType.Portcullis => true,
+        AccessControlSystemComponentType.PosternGate => true,
+        _ => false,
+      };
+    }
   }
 
   public bool? Opened
@@ -56,18 +55,18 @@ public class AccessControlSystemComponent()
 
   public bool IsLockable
   {
-    get;
-    // {
-    //   return Type switch
-    //   {
-    //     AccessControlSystemComponentType.Door => true,
-    //     AccessControlSystemComponentType.Drawbridge => false,
-    //     AccessControlSystemComponentType.Gate => false,
-    //     AccessControlSystemComponentType.Portcullis => false,
-    //     AccessControlSystemComponentType.PosternGate => true,
-    //     _ => false,
-    //   };
-    // }
+    get
+    {
+      return Type switch
+      {
+        AccessControlSystemComponentType.Door => true,
+        AccessControlSystemComponentType.Drawbridge => false,
+        AccessControlSystemComponentType.Gate => false,
+        AccessControlSystemComponentType.Portcullis => false,
+        AccessControlSystemComponentType.PosternGate => true,
+        _ => false,
+      };
+    }
   }
   public bool? Locked
   {
