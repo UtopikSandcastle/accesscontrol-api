@@ -47,7 +47,7 @@ if (app.Environment.IsDevelopment())
   await devicesService.SeedDataAsync();
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
