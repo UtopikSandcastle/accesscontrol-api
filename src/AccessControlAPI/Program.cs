@@ -28,9 +28,6 @@ builder.Services.AddSingleton<AccessControlSystemsService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-// if (app.Environment.IsDevelopment())
-if (true)
-{
   app.UseSwagger();
   app.UseSwaggerUI(c =>
   {
@@ -44,6 +41,8 @@ if (true)
     .SetIsOriginAllowed((host) => true)
     .AllowCredentials());
 
+if (app.Environment.IsDevelopment())
+{
   var devicesService = app.Services.GetRequiredService<AccessControlDevicesService>();
   await devicesService.SeedDataAsync();
 }
