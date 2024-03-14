@@ -5,7 +5,7 @@ using UtopikSandcastle.AccessControlAPI.Services;
 namespace UtopikSandcastle.AccessControlAPI.Controllers;
 
 [ApiController]
-[Route("api/v1/[controller]")]
+[Route("v1/[controller]")]
 public class AccessControlDeviceController(AccessControlDevicesService accessControlDevicesService) : ControllerBase
 {
   private readonly AccessControlDevicesService _accessControlDevicesService = accessControlDevicesService;

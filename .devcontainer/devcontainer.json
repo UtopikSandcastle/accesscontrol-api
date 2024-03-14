@@ -13,7 +13,7 @@
   "portsAttributes": {
     "7291": {
       "label": "https",
-      "protocol": "https",
+      "protocol": "https"
     }
   },
   "otherPortsAttributes": {
@@ -23,7 +23,7 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        "ms-dotnettools.csharp", // C# for Visual Studio Code
+        "ms-dotnettools.csharp" // C# for Visual Studio Code
         // "ms-dotnettools.csdevkit" // C# Dev Kit for Visual Studio Code
       ]
     }

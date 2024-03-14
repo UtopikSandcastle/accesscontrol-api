@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-# dotnet tool restore
+dotnet tool restore
