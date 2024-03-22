@@ -7,10 +7,10 @@ on:
   pull_request:
     branches: [ "main" ]
 
-# Secrets:
-#   DOCKERHUB_USERNAME
-#   DOCKERHUB_TOKEN
-#   NPM_TOKEN
+Secrets:
+  DOCKERHUB_USERNAME
+  DOCKERHUB_TOKEN
+  NPM_TOKEN
 
 env:
   AUTHOR_NAME: Utopik Sandcastle
@@ -22,8 +22,9 @@ jobs:
     with:
       docker-registry: ${{ startsWith(github.ref, 'refs/tags/v') && 'docker.io' || 'ghcr.io' }}
       docker-username: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.DOCKERHUB_USERNAME || github.actor }}
-      docker-password: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.DOCKERHUB_TOKEN || secrets.GITHUB_TOKEN }}
       dockerfile-path: "src/AccessControlAPI"
+    secrets:
+      docker-password: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.DOCKERHUB_TOKEN || secrets.GITHUB_TOKEN }}
     # outputs:
     #   image_tags: ${{ steps.updated-tags.outputs.tags }}
 
