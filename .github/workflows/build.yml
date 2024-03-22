@@ -7,10 +7,10 @@ on:
   pull_request:
     branches: [ "main" ]
 
-secrets:
-  DOCKERHUB_USERNAME
-  DOCKERHUB_TOKEN
-  NPM_TOKEN
+# secrets:
+#   DOCKERHUB_USERNAME
+#   DOCKERHUB_TOKEN
+#   NPM_TOKEN
 
 env:
   AUTHOR_NAME: Utopik Sandcastle
