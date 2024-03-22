@@ -18,101 +18,112 @@ env:
 
 jobs:
   docker:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-      # This is used to complete the identity challenge
-      # with sigstore/fulcio when running outside of PRs.
-      id-token: write
-    env:
-      DOCKER_REGISTRY: ${{ startsWith(github.ref, 'refs/tags/v') && 'docker.io' || 'ghcr.io' }}
-      DOCKER_USERNAME: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.DOCKERHUB_USERNAME || github.actor }}
-      DOCKER_PASSWORD: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.DOCKERHUB_TOKEN || secrets.GITHUB_TOKEN }}
-      DOCKERFILE_PATH: "src/AccessControlAPI"
     outputs:
       image_tags: ${{ steps.updated-tags.outputs.tags }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    uses: UtopikGoodies/github-workflow/docker.yml@init
+    with:
+      docker-registry: ${{ startsWith(github.ref, 'refs/tags/v') && 'docker.io' || 'ghcr.io' }}
+      docker-username: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.DOCKERHUB_USERNAME || github.actor }}
+      dockerfile-path: "src/AccessControlAPI"
+    secrets: 
+      docker-password: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.DOCKERHUB_TOKEN || secrets.GITHUB_TOKEN }}
 
-      # Install the cosign tool except on PR
-      # https://github.com/sigstore/cosign-installer
-      - name: Install cosign
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: sigstore/cosign-installer@v3
-        with:
-          cosign-release: 'v2.1.1'
+  # docker:
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: read
+  #     packages: write
+  #     # This is used to complete the identity challenge
+  #     # with sigstore/fulcio when running outside of PRs.
+  #     id-token: write
+  #   env:
+  #     DOCKER_REGISTRY: ${{ startsWith(github.ref, 'refs/tags/v') && 'docker.io' || 'ghcr.io' }}
+  #     DOCKER_USERNAME: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.DOCKERHUB_USERNAME || github.actor }}
+  #     DOCKER_PASSWORD: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.DOCKERHUB_TOKEN || secrets.GITHUB_TOKEN }}
+  #     DOCKERFILE_PATH: "src/AccessControlAPI"
+  #   outputs:
+  #     image_tags: ${{ steps.updated-tags.outputs.tags }}
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
 
-      # Set up BuildKit Docker container builder to be able to build
-      # multi-platform images and export cache
-      # https://github.com/docker/setup-buildx-action
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-           version: v0.11.2
+  #     # Install the cosign tool except on PR
+  #     # https://github.com/sigstore/cosign-installer
+  #     - name: Install cosign
+  #       if: startsWith(github.ref, 'refs/tags/v')
+  #       uses: sigstore/cosign-installer@v3
+  #       with:
+  #         cosign-release: 'v2.1.1'
 
-      # Login against a Docker DOCKER_REGISTRY
-      # https://github.com/docker/login-action
-      - name: Log into DOCKER_REGISTRY ${{ env.DOCKER_REGISTRY }}
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.DOCKER_REGISTRY }}
-          username: ${{ env.DOCKER_USERNAME }}
-          password: ${{ env.DOCKER_PASSWORD }}
+  #     # Set up BuildKit Docker container builder to be able to build
+  #     # multi-platform images and export cache
+  #     # https://github.com/docker/setup-buildx-action
+  #     - name: Set up Docker Buildx
+  #       uses: docker/setup-buildx-action@v3
+  #       with:
+  #          version: v0.11.2
 
-      # Extract metadata (tags, labels) for Docker
-      # https://github.com/docker/metadata-action
-      - name: Extract Docker metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.DOCKER_REGISTRY }}/${{ github.repository }}
-          tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
+  #     # Login against a Docker DOCKER_REGISTRY
+  #     # https://github.com/docker/login-action
+  #     - name: Log into DOCKER_REGISTRY ${{ env.DOCKER_REGISTRY }}
+  #       uses: docker/login-action@v3
+  #       with:
+  #         registry: ${{ env.DOCKER_REGISTRY }}
+  #         username: ${{ env.DOCKER_USERNAME }}
+  #         password: ${{ env.DOCKER_PASSWORD }}
 
-      - name: Update tags
-        id: updated-tags
-        run: |
-          TAGS="${{ steps.meta.outputs.tags }}"
-          MODIFIED_TAGS=$(echo "$TAGS" | sed 's/pr-/pr\./g')
-          if [[ -z $MODIFIED_TAGS ]]; then
-            MODIFIED_TAGS=$TAGS
-          fi
-          echo "tags=$MODIFIED_TAGS" >> $GITHUB_OUTPUT
+  #     # Extract metadata (tags, labels) for Docker
+  #     # https://github.com/docker/metadata-action
+  #     - name: Extract Docker metadata
+  #       id: meta
+  #       uses: docker/metadata-action@v5
+  #       with:
+  #         images: ${{ env.DOCKER_REGISTRY }}/${{ github.repository }}
+  #         tags: |
+  #           type=ref,event=branch
+  #           type=ref,event=pr
+  #           type=semver,pattern={{version}}
+  #           type=semver,pattern={{major}}.{{minor}}
+  #           type=semver,pattern={{major}}
 
-      # Build and push Docker image with Buildx
-      # https://github.com/docker/build-push-action
-      - name: Build and push Docker image
-        id: build-and-push
-        uses: docker/build-push-action@v5
-        with:
-          context: ${{ env.DOCKERFILE_PATH }}
-          push: true
-          tags: ${{ steps.updated-tags.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          provenance: false
+  #     - name: Update tags
+  #       id: updated-tags
+  #       run: |
+  #         TAGS="${{ steps.meta.outputs.tags }}"
+  #         MODIFIED_TAGS=$(echo "$TAGS" | sed 's/pr-/pr\./g')
+  #         if [[ -z $MODIFIED_TAGS ]]; then
+  #           MODIFIED_TAGS=$TAGS
+  #         fi
+  #         echo "tags=$MODIFIED_TAGS" >> $GITHUB_OUTPUT
 
-      # Sign the resulting Docker image digest except on PRs.
-      # This will only write to the public Rekor transparency log when the Docker
-      # repository is public to avoid leaking data.  If you would like to publish
-      # transparency data even for private images, pass --force to cosign below.
-      # https://github.com/sigstore/cosign
-      - name: Sign the published Docker image
-        if: startsWith(github.ref, 'refs/tags/v')
-        env:
-          # https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-an-intermediate-environment-variable
-          TAGS: ${{ steps.meta.outputs.tags }}
-          DIGEST: ${{ steps.build-and-push.outputs.digest }}
-        # This step uses the identity token to provision an ephemeral certificate
-        # against the sigstore community Fulcio instance.
-        run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
+  #     # Build and push Docker image with Buildx
+  #     # https://github.com/docker/build-push-action
+  #     - name: Build and push Docker image
+  #       id: build-and-push
+  #       uses: docker/build-push-action@v5
+  #       with:
+  #         context: ${{ env.DOCKERFILE_PATH }}
+  #         push: true
+  #         tags: ${{ steps.updated-tags.outputs.tags }}
+  #         labels: ${{ steps.meta.outputs.labels }}
+  #         cache-from: type=gha
+  #         cache-to: type=gha,mode=max
+  #         provenance: false
+
+  #     # Sign the resulting Docker image digest except on PRs.
+  #     # This will only write to the public Rekor transparency log when the Docker
+  #     # repository is public to avoid leaking data.  If you would like to publish
+  #     # transparency data even for private images, pass --force to cosign below.
+  #     # https://github.com/sigstore/cosign
+  #     - name: Sign the published Docker image
+  #       if: startsWith(github.ref, 'refs/tags/v')
+  #       env:
+  #         # https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-an-intermediate-environment-variable
+  #         TAGS: ${{ steps.meta.outputs.tags }}
+  #         DIGEST: ${{ steps.build-and-push.outputs.digest }}
+  #       # This step uses the identity token to provision an ephemeral certificate
+  #       # against the sigstore community Fulcio instance.
+  #       run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
         
   openapi:
     needs: docker
