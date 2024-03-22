@@ -21,9 +21,10 @@ jobs:
     uses: UtopikGoodies/github-workflow/.github/workflows/docker.yml@init
     with:
       docker-registry: ${{ startsWith(github.ref, 'refs/tags/v') && 'docker.io' || 'ghcr.io' }}
-      docker-username: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.DOCKERHUB_USERNAME || github.actor }}
+      docker-username: ${{ startsWith(github.ref, 'refs/tags/v') && env.DOCKERHUB_USERNAME || github.actor }}
       dockerfile-path: "src/AccessControlAPI"
-
+    secrets:
+      docker-password: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.DOCKERHUB_TOKEN || secrets.GITHUB_TOKEN }}
 
     # with:
     #   docker-registry: ${{ env.DOCKER_REGISTRY }}
