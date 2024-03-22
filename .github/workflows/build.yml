@@ -15,15 +15,15 @@ on:
 env:
   AUTHOR_NAME: Utopik Sandcastle
   AUTHOR_EMAIL: utopiksandcastle@utopiksolutions.com
-  DOCKER_REGISTRY: ${{ startsWith(github.ref, 'refs/tags/v') && 'docker.io' || 'ghcr.io' }}
-  DOCKER_USERNAME: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.DOCKERHUB_USERNAME || github.actor }}
-  DOCKER_PASSWORD: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.DOCKERHUB_TOKEN || secrets.GITHUB_TOKEN }}
 
 jobs:
   docker:
     uses: UtopikGoodies/github-workflow/.github/workflows/docker.yml@init
     with:
       docker-registry: ${{ startsWith(github.ref, 'refs/tags/v') && 'docker.io' || 'ghcr.io' }}
+      docker-username: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.DOCKERHUB_USERNAME || github.actor }}
+      dockerfile-path: "src/AccessControlAPI"
+
 
     # with:
     #   docker-registry: ${{ env.DOCKER_REGISTRY }}
