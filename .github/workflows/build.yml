@@ -7,7 +7,7 @@ on:
   pull_request:
     branches: [ "main" ]
 
-Secrets:
+secrets:
   DOCKERHUB_USERNAME
   DOCKERHUB_TOKEN
   NPM_TOKEN
