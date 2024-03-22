@@ -25,8 +25,8 @@ jobs:
       dockerfile-path: "src/AccessControlAPI"
     secrets:
       docker-password: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.DOCKERHUB_TOKEN || secrets.GITHUB_TOKEN }}
-    outputs:
-      image_tags: ${{ steps.updated-tags.outputs.tags }}
+    # outputs:
+    #   image_tags: ${{ steps.updated-tags.outputs.tags }}
 
   # docker:
   #   runs-on: ubuntu-latest
