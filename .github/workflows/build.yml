@@ -65,7 +65,7 @@ jobs:
     with:
       artifact-name: openapi
       npm-package-scope: ${{ format('@{0}', github.repository_owner) }}
-      npm-package-name: ${github.repository_name#*/}-client
+      npm-package-name: ${{ format('{0}-client', basename(github.repository_name)) }}
       npm-package-version: ${{ startsWith(github.ref, 'refs/tags/v') && 'v' || '0.0.0' }}${{ startsWith(github.ref, 'refs/tags/v') && github.ref || '-pr.' }}${{ github.event.pull_request.number || github.ref }}
 
   # openapi-typescript-angular:
