@@ -144,7 +144,7 @@ jobs:
       - name: Extract OpenAPI configuration file
         uses: shrink/actions-docker-extract@v3
         with:
-          image: ${{ needs.docker.outputs.image_tags }}
+          image: ${{ needs.docker.outputs.image-tags }}
           path: App/openapi.json
           destination: openapi.json
 
