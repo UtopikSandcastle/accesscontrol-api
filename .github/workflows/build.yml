@@ -67,7 +67,7 @@ jobs:
           path: openapi.json
           
   openapi-typescript-angular:
-    needs: setup, openapi
+    needs: [setup, openapi]
     uses: UtopikGoodies/github-workflow/.github/workflows/openapi-typescript-angular.yml@init
     with:
       artifact-name: openapi
