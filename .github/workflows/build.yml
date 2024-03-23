@@ -24,9 +24,16 @@ jobs:
       docker-username: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.DOCKERHUB_USERNAME || github.actor }}
       dockerfile-directory: "src/AccessControlAPI"
       docker-password: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.DOCKERHUB_TOKEN || secrets.GITHUB_TOKEN }}
+      npm-package-scope: ${{ steps.outputs.meta.npm-package-scope }}
+      npm-package-name: ${{ steps.outputs.meta.npm-package-name }}
+      npm-package-version: ${{ steps.outputs.meta.npm-package-version }}
     steps:
       - name: Set outputs
-        run: echo "Outputs set."
+        id: meta
+        run: |
+          echo "npm-package-scope=@$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+          echo "npm-package-name=${GITHUB_REPOSITORY#*/}-client" >> $GITHUB_OUTPUT
+          echo "npm-package-version=$(echo '${{ github.ref }}' | sed 's|refs/tags/v||')" >> $GITHUB_OUTPUT
 
   docker:
     needs: setup
@@ -60,13 +67,13 @@ jobs:
           path: openapi.json
           
   openapi-typescript-angular:
-    needs: openapi
+    needs: setup, openapi
     uses: UtopikGoodies/github-workflow/.github/workflows/openapi-typescript-angular.yml@init
     with:
       artifact-name: openapi
-      npm-package-scope: ${{ format('@{0}', github.repository_owner) }}
-      npm-package-name: ${{ format('{0}-client', github.repository.name) }}
-      npm-package-version: ${{ startsWith(github.ref, 'refs/tags/v') && 'v' || '0.0.0' }}${{ startsWith(github.ref, 'refs/tags/v') && github.ref || '-pr.' }}${{ github.event.pull_request.number || github.ref }}
+      npm-package-scope: ${{ needs.setup.outputs.npm-package-scope }}
+      npm-package-name: ${{ needs.setup.outputs.npm-package-name }}
+      npm-package-version: ${{ needs.setup.outputs.npm-package-version }}
 
   # openapi-typescript-angular:
   #   needs: openapi
