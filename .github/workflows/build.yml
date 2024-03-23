@@ -36,7 +36,7 @@ jobs:
       docker-username: ${{ needs.setup.outputs.docker-username }}
       dockerfile-directory: ${{ needs.setup.outputs.dockerfile-directory }}
     secrets:
-      docker-password: ${{ secrets.GITHUB_TOKEN }}
+      docker-password: ${{ secrets.DOCKERHUB_TOKEN }}
 
   # docker:
   #   runs-on: ubuntu-latest
