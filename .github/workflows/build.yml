@@ -35,8 +35,8 @@ jobs:
       docker-registry: ${{ needs.setup.outputs.docker-registry }}
       docker-username: ${{ needs.setup.outputs.docker-username }}
       dockerfile-directory: ${{ needs.setup.outputs.dockerfile-directory }}
-    # secrets:
-      docker-password: ${{ needs.setup.outputs.docker-password }}
+    secrets:
+      docker-password: ${{ secrets.GITHUB_TOKEN }}
 
   # docker:
   #   runs-on: ubuntu-latest
