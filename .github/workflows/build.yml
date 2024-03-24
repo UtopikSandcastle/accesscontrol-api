@@ -23,17 +23,17 @@ jobs:
       docker-registry: ${{ startsWith(github.ref, 'refs/tags/v') && 'docker.io' || 'ghcr.io' }}
       docker-username: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.DOCKERHUB_USERNAME || github.actor }}
       dockerfile-directory: "src/AccessControlAPI"
-      npm-packageauthor: "${{ env.AUTHOR_NAME }} <${{ env.AUTHOR_EMAIL }}>"
-      npm-packagename: ${{ steps.outputs.meta.npm-package-name }}
-      npm-packagescope: ${{ steps.outputs.meta.npm-package-scope }}
-      npm-packageversion: ${{ steps.outputs.meta.npm-package-version }}
+      npm-package-author: "${{ env.AUTHOR_NAME }} <${{ env.AUTHOR_EMAIL }}>"
+      npm-package-name: ${{ env.NPM_PACKAGE_NAME }}
+      npm-package-scope: ${{ env.NPM_PACKAGE_SCOPE }}
+      npm-package-version: ${{ env.NPM_PACKAGE_VERSION }}
     steps:
       - name: Set outputs
         id: meta
         run: |
-          echo "npm-package-name=${GITHUB_REPOSITORY#*/}-client" >> $GITHUB_OUTPUT
-          echo "npm-package-scope=@$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
-          echo "npm-package-version=$(echo '${{ github.ref }}' | sed 's|refs/tags/v||')" >> $GITHUB_OUTPUT
+          echo "NPM_PACKAGE_NAME=${GITHUB_REPOSITORY#*/}-client" >> $GITHUB_ENV
+          echo "NPM_PACKAGE_SCOPE=@$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+          echo "NPM_PACKAGE_VERSION=$(echo '${{ github.ref }}' | sed 's|refs/tags/v||')" >> $GITHUB_ENV
 
   docker:
     needs: setup
