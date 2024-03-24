@@ -33,7 +33,16 @@ jobs:
         run: |
           echo "NPM_PACKAGE_NAME=${GITHUB_REPOSITORY#*/}-client" >> $GITHUB_ENV
           echo "NPM_PACKAGE_SCOPE=@$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
-          echo "NPM_PACKAGE_VERSION=$(echo '${{ github.ref }}' | sed 's|refs/tags/v||')" >> $GITHUB_ENV
+          if [[ $GITHUB_REF == refs/tags/v* ]]; then
+            echo "NPM_PACKAGE_VERSION=$(echo '${{ github.ref }}' | sed 's|refs/tags/v||')" >> $GITHUB_ENV
+          else
+            if [ "${{ github.event_name }}" = "pull_request" ]; then
+              VERSION_SUFFIX="pr.${{ github.event.pull_request.number }}"
+            else
+              VERSION_SUFFIX=$(basename "${{ github.ref }}")
+            fi
+            echo "NPM_PACKAGE_VERSION=0.0.0-$VERSION_SUFFIX" >> $GITHUB_ENV
+          fi
 
   # docker:
   #   needs: setup
