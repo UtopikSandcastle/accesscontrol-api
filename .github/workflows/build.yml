@@ -24,10 +24,10 @@ jobs:
       docker-username: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.DOCKERHUB_USERNAME || github.actor }}
       dockerfile-directory: "src/AccessControlAPI"
       docker-password: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.DOCKERHUB_TOKEN || secrets.GITHUB_TOKEN }}
-      # npm-package-scope: ${{ steps.outputs.meta.npm-package-scope }}
-      # npm-package-name: ${{ steps.outputs.meta.npm-package-name }}
-      # npm-package-version: ${{ steps.outputs.meta.npm-package-version }}
-      # npm-package-author: "${{ env.AUTHOR_NAME }} <${{ env.AUTHOR_EMAIL }}>"
+      npm-package-scope: ${{ steps.outputs.meta.npm-package-scope }}
+      npm-package-name: ${{ steps.outputs.meta.npm-package-name }}
+      npm-package-version: ${{ steps.outputs.meta.npm-package-version }}
+      npm-package-author: "${{ env.AUTHOR_NAME }} <${{ env.AUTHOR_EMAIL }}>"
     steps:
       - name: Set outputs
         id: meta
