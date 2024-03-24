@@ -31,9 +31,9 @@ jobs:
       - name: Set outputs
         id: meta
         run: |
-          echo "npm-package-name=${GITHUB_REPOSITORY#*/}-client" >> $GITHUB_OUTPUT
-          echo "npm-package-scope=@$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
-          echo "npm-package-version=$(echo '${{ github.ref }}' | sed 's|refs/tags/v||')" >> $GITHUB_OUTPUT
+          echo "::set-output name=npm-package-name::${GITHUB_REPOSITORY#*/}-client"
+          echo "::set-output name=npm-package-scope::@$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
+          echo "::set-output name=npm-package-version::$(echo '${{ github.ref }}' | sed 's|refs/tags/v||')"
 
   docker:
     needs: setup
@@ -71,12 +71,12 @@ jobs:
     uses: UtopikGoodies/github-workflow/.github/workflows/openapi-typescript-angular.yml@init
     with:
       artifact-name: openapi
-      npm-package-scope: ${{ needs.setup.outputs.npm-package-scope }}
-      npm-package-name: ${{ needs.setup.outputs.npm-package-name }}
-      npm-package-version: ${{ needs.setup.outputs.npm-package-version }}
-      npm-package-description: "Client library for the Access Control API"
       npm-package-author: ${{ needs.setup.outputs.npm-package-author }}
+      npm-package-description: "Client library for the Access Control API"
       npm-package-license: "MIT"
+      npm-package-name: ${{ needs.setup.outputs.npm-package-name }}
+      npm-package-scope: ${{ needs.setup.outputs.npm-package-scope }}
+      npm-package-version: ${{ needs.setup.outputs.npm-package-version }}
 
   # openapi-typescript-angular:
   #   needs: openapi
