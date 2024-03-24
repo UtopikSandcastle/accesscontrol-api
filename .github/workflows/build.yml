@@ -74,6 +74,9 @@ jobs:
       npm-package-scope: ${{ needs.setup.outputs.npm-package-scope }}
       npm-package-name: ${{ needs.setup.outputs.npm-package-name }}
       npm-package-version: ${{ needs.setup.outputs.npm-package-version }}
+      npm-package-description: "Client library for the Access Control API"
+      npm-package-author: "${{ env.AUTHOR_NAME }} <${{ env.AUTHOR_EMAIL }}>"
+      npm-package-license: "MIT"
 
   # openapi-typescript-angular:
   #   needs: openapi
