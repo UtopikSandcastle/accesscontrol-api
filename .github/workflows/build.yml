@@ -22,6 +22,7 @@ jobs:
     outputs:
       docker-registry: ${{ startsWith(github.ref, 'refs/tags/v') && 'docker.io' || 'ghcr.io' }}
       docker-username: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.DOCKERHUB_USERNAME || github.actor }}
+      docker-password: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.DOCKERHUB_TOKEN || secrets.GITHUB_TOKEN }}
       dockerfile-directory: "src/AccessControlAPI"
       npm-registry: ${{ startsWith(github.ref, 'refs/tags/v') && 'https://registry.npmjs.org' || 'https://npm.pkg.github.com' }}
       npm-package-author: "${{ env.AUTHOR_NAME }} <${{ env.AUTHOR_EMAIL }}>"
@@ -52,8 +53,8 @@ jobs:
       registry: ${{ needs.setup.outputs.docker-registry }}
       username: ${{ needs.setup.outputs.docker-username }}
       dockerfile-directory: ${{ needs.setup.outputs.dockerfile-directory }}
-      password: ${{ contains(inputs.docker-registry, 'ghcr.io') && secrets.GITHUB_TOKEN || secrets.DOCKERHUB_TOKEN }}
-    # secrets:
+    secrets:
+      password: ${{ needs.setup.outputs.docker-password }}
 
   openapi:
     needs: docker
