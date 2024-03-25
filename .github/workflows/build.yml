@@ -23,6 +23,7 @@ jobs:
       docker-registry: ${{ startsWith(github.ref, 'refs/tags/v') && 'docker.io' || 'ghcr.io' }}
       docker-username: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.DOCKERHUB_USERNAME || github.actor }}
       dockerfile-directory: "src/AccessControlAPI"
+      npm-registry: ${{ startsWith(github.ref, 'refs/tags/v') && 'https://registry.npmjs.org' || 'https://npm.pkg.github.com' }}
       npm-package-author: "${{ env.AUTHOR_NAME }} <${{ env.AUTHOR_EMAIL }}>"
       npm-package-name: ${{ env.NPM_PACKAGE_NAME }}
       npm-package-scope: ${{ env.NPM_PACKAGE_SCOPE }}
@@ -52,7 +53,7 @@ jobs:
       docker-username: ${{ needs.setup.outputs.docker-username }}
       dockerfile-directory: ${{ needs.setup.outputs.dockerfile-directory }}
     secrets:
-      docker-password: ${{ secrets.DOCKERHUB_TOKEN }}
+      docker-password: ${{ contains(inputs.docker-registry, 'ghcr.io') && secrets.GITHUB_TOKEN || secrets.DOCKERHUB_TOKEN }}
 
   openapi:
     needs: docker
@@ -80,12 +81,16 @@ jobs:
     uses: UtopikGoodies/github-workflow/.github/workflows/openapi-typescript-angular.yml@init
     with:
       artifact-name: openapi
+      npm-registry: ${{ needs.setup.outputs.npm-registry }}
       npm-package-author: ${{ needs.setup.outputs.npm-package-author }}
       npm-package-description: "Client library for the Access Control API"
       npm-package-license: "MIT"
       npm-package-name: ${{ needs.setup.outputs.npm-package-name }}
       npm-package-scope: ${{ needs.setup.outputs.npm-package-scope }}
       npm-package-version: ${{ needs.setup.outputs.npm-package-version }}
+    secrets:
+      npm-registry-token: ${{ contains(inputs.docker-registry, 'ghcr.io') && secrets.GITHUB_TOKEN || secrets.DOCKERHUB_TOKEN }}
+      # npm-registry-token: ${{ secrets.NPM_TOKEN }}
 
   # openapi-typescript-angular:
   #   needs: openapi
