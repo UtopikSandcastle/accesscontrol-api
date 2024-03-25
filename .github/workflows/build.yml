@@ -37,43 +37,43 @@ jobs:
             echo "NPM_PACKAGE_VERSION=$(echo '${{ github.ref }}' | sed 's|refs/tags/v||')" >> $GITHUB_ENV
           else
             if [ "${{ github.event_name }}" = "pull_request" ]; then
-              VERSION_SUFFIX="pr.${{ github.event.pull_request.number }}"
+              VERSION_SUFFIX="pr.${{ github.event.pull_request.number }}.${{ github.run_attempt }}"
             else
               VERSION_SUFFIX=$(basename "${{ github.ref }}")
             fi
             echo "NPM_PACKAGE_VERSION=0.0.0-$VERSION_SUFFIX" >> $GITHUB_ENV
           fi
 
-  # docker:
-  #   needs: setup
-  #   uses: UtopikGoodies/github-workflow/.github/workflows/docker.yml@init
-  #   with:
-  #     docker-registry: ${{ needs.setup.outputs.docker-registry }}
-  #     docker-username: ${{ needs.setup.outputs.docker-username }}
-  #     dockerfile-directory: ${{ needs.setup.outputs.dockerfile-directory }}
-  #   secrets:
-  #     docker-password: ${{ secrets.DOCKERHUB_TOKEN }}
+  docker:
+    needs: setup
+    uses: UtopikGoodies/github-workflow/.github/workflows/docker.yml@init
+    with:
+      docker-registry: ${{ needs.setup.outputs.docker-registry }}
+      docker-username: ${{ needs.setup.outputs.docker-username }}
+      dockerfile-directory: ${{ needs.setup.outputs.dockerfile-directory }}
+    secrets:
+      docker-password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-  # openapi:
-  #   needs: docker
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     # Extract OpenAPI Configuration File from the Docker image.
-  #     # The file is generated in the Dockerfile and placed at the root.
-  #     - name: Extract OpenAPI configuration file
-  #       uses: shrink/actions-docker-extract@v3
-  #       with:
-  #         image: ${{ needs.docker.outputs.image-tags }}
-  #         path: App/openapi.json
-  #         destination: openapi.json
+  openapi:
+    needs: docker
+    runs-on: ubuntu-latest
+    steps:
+      # Extract OpenAPI Configuration File from the Docker image.
+      # The file is generated in the Dockerfile and placed at the root.
+      - name: Extract OpenAPI configuration file
+        uses: shrink/actions-docker-extract@v3
+        with:
+          image: ${{ needs.docker.outputs.image-tags }}
+          path: App/openapi.json
+          destination: openapi.json
 
-  #     # The OpenAPI Configuration File can generate multiple language packages.
-  #     # This step store the artifact to be able to use it later.
-  #     - name: Upload OpenAPI configuration file to artifact
-  #       uses: actions/upload-artifact@v4.0.0
-  #       with:
-  #         name: openapi
-  #         path: openapi.json
+      # The OpenAPI Configuration File can generate multiple language packages.
+      # This step store the artifact to be able to use it later.
+      - name: Upload OpenAPI configuration file to artifact
+        uses: actions/upload-artifact@v4.0.0
+        with:
+          name: openapi
+          path: openapi.json
           
   openapi-typescript-angular:
     # needs: [setup, openapi]
@@ -88,157 +88,157 @@ jobs:
       npm-package-scope: ${{ needs.setup.outputs.npm-package-scope }}
       npm-package-version: ${{ needs.setup.outputs.npm-package-version }}
 
-  # openapi-typescript-angular:
-  #   needs: openapi
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Get package meta
-  #       id: package
-  #       run: |
-  #         # Use the version tag, if not use the PR id or the destination branch.
-  #         if [[ $GITHUB_REF == refs/tags/v* ]]; then
-  #           echo "registry=https://registry.npmjs.org" >> $GITHUB_OUTPUT
-  #           echo "secret=${{ secrets.NPM_TOKEN }}" >> $GITHUB_OUTPUT
-  #           echo "version=$(echo '${{ github.ref }}' | sed 's|refs/tags/v||')" >> $GITHUB_OUTPUT
-  #         else
-  #           if [ "${{ github.event_name }}" = "pull_request" ]; then
-  #             VERSION_SUFFIX="-pr.${{ github.event.pull_request.number }}"
-  #           else
-  #             VERSION_SUFFIX=-$(basename "${{ github.ref }}")
-  #           fi
-  #           echo "registry=https://npm.pkg.github.com" >> $GITHUB_OUTPUT
-  #           echo "secret=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_OUTPUT
-  #           echo "version=0.0.0$VERSION_SUFFIX" >> $GITHUB_OUTPUT
-  #         fi
+  openapi-typescript-angular:
+    needs: openapi
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get package meta
+        id: package
+        run: |
+          # Use the version tag, if not use the PR id or the destination branch.
+          if [[ $GITHUB_REF == refs/tags/v* ]]; then
+            echo "registry=https://registry.npmjs.org" >> $GITHUB_OUTPUT
+            echo "secret=${{ secrets.NPM_TOKEN }}" >> $GITHUB_OUTPUT
+            echo "version=$(echo '${{ github.ref }}' | sed 's|refs/tags/v||')" >> $GITHUB_OUTPUT
+          else
+            if [ "${{ github.event_name }}" = "pull_request" ]; then
+              VERSION_SUFFIX="-pr.${{ github.event.pull_request.number }}"
+            else
+              VERSION_SUFFIX=-$(basename "${{ github.ref }}")
+            fi
+            echo "registry=https://npm.pkg.github.com" >> $GITHUB_OUTPUT
+            echo "secret=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_OUTPUT
+            echo "version=0.0.0$VERSION_SUFFIX" >> $GITHUB_OUTPUT
+          fi
 
-  #         echo "scope=@$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
-  #         echo "name=${GITHUB_REPOSITORY#*/}-client" >> $GITHUB_OUTPUT
+          echo "scope=@$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+          echo "name=${GITHUB_REPOSITORY#*/}-client" >> $GITHUB_OUTPUT
 
-  #     # Get a copy of the OpenAPI Configuration File in the local directory.
-  #     - name: Download OpenAPI configuration file from artifact
-  #       uses: actions/download-artifact@v4.1.0
-  #       with:
-  #         name: openapi
+      # Get a copy of the OpenAPI Configuration File in the local directory.
+      - name: Download OpenAPI configuration file from artifact
+        uses: actions/download-artifact@v4.1.0
+        with:
+          name: openapi
       
-  #     # Generate a npm package for Angular library based on the OpenAPI Configuration File.
-  #     - name: Generate Angular Client
-  #       run: |
-  #         docker run --rm \
-  #           -v ${{ github.workspace }}:/workspace \
-  #           openapitools/openapi-generator-cli \
-  #             generate \
-  #               -i /workspace/openapi.json \
-  #               -g typescript-angular \
-  #               -o /workspace/ \
-  #               --additional-properties=npmName=${{ steps.package.outputs.scope }}/${{ steps.package.outputs.name }},npmVersion=${{ steps.package.outputs.version }}
+      # Generate a npm package for Angular library based on the OpenAPI Configuration File.
+      - name: Generate Angular Client
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}:/workspace \
+            openapitools/openapi-generator-cli \
+              generate \
+                -i /workspace/openapi.json \
+                -g typescript-angular \
+                -o /workspace/ \
+                --additional-properties=npmName=${{ steps.package.outputs.scope }}/${{ steps.package.outputs.name }},npmVersion=${{ steps.package.outputs.version }}
       
-  #     # Setup the requirement for npm package
-  #     - name: Set up Node.js
-  #       uses: actions/setup-node@v4.0.1
-  #       with:
-  #         node-version: 18
-  #         registry-url: ${{ steps.package.outputs.registry }}
-  #         scope: ${{ steps.package.outputs.scope }}
+      # Setup the requirement for npm package
+      - name: Set up Node.js
+        uses: actions/setup-node@v4.0.1
+        with:
+          node-version: 18
+          registry-url: ${{ steps.package.outputs.registry }}
+          scope: ${{ steps.package.outputs.scope }}
 
-  #     # Add information to the package configuration.
-  #     - name: Configure package
-  #       run: |
-  #         jq '.repository = {"type": "git", "url": "git+https://github.com/${{ github.repository }}.git"}' package.json > tmp.json && mv tmp.json package.json
-  #         jq '.author = "${{ env.AUTHOR_NAME }} <${{ env.AUTHOR_EMAIL }}>"' package.json > tmp.json && mv tmp.json package.json
-  #     - run: cat package.json
+      # Add information to the package configuration.
+      - name: Configure package
+        run: |
+          jq '.repository = {"type": "git", "url": "git+https://github.com/${{ github.repository }}.git"}' package.json > tmp.json && mv tmp.json package.json
+          jq '.author = "${{ env.AUTHOR_NAME }} <${{ env.AUTHOR_EMAIL }}>"' package.json > tmp.json && mv tmp.json package.json
+      - run: cat package.json
 
-  #     # Install requirement and build the package.
-  #     - name: Build the package
-  #       run: npm install
-  #     - run: npm run build
+      # Install requirement and build the package.
+      - name: Build the package
+        run: npm install
+      - run: npm run build
 
-  #     # Publish the package.
-  #     - name: Get the previous package id for the same package version
-  #       if: ${{ !(startsWith(github.ref, 'refs/tags/v')) }}
-  #       id: version-id
-  #       run: |
-  #         ORG=${{ github.repository_owner }}
-  #         PACKAGE_NAME=${{ steps.package.outputs.name }}
-  #         PACKAGE_VERSION=${{ steps.package.outputs.version }}
+      # Publish the package.
+      - name: Get the previous package id for the same package version
+        if: ${{ !(startsWith(github.ref, 'refs/tags/v')) }}
+        id: version-id
+        run: |
+          ORG=${{ github.repository_owner }}
+          PACKAGE_NAME=${{ steps.package.outputs.name }}
+          PACKAGE_VERSION=${{ steps.package.outputs.version }}
 
-  #         response=$(curl -s -w "%{http_code}" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-  #           "https://api.github.com/orgs/${ORG}/packages/npm/${PACKAGE_NAME}/versions")
+          response=$(curl -s -w "%{http_code}" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/orgs/${ORG}/packages/npm/${PACKAGE_NAME}/versions")
 
-  #         # Extract HTTP status code
-  #         status_code="${response: -3}"
+          # Extract HTTP status code
+          status_code="${response: -3}"
 
-  #         # Check if the request was successful (status code 2xx)
-  #         if [[ $status_code -eq 200 ]]; then
-  #           # Fetch response body
-  #           response_body=$(echo "${response}" | sed '$s/...$//')
+          # Check if the request was successful (status code 2xx)
+          if [[ $status_code -eq 200 ]]; then
+            # Fetch response body
+            response_body=$(echo "${response}" | sed '$s/...$//')
 
-  #           # Parse JSON response with jq to find the version ID
-  #           version_id=$(echo "${response_body}" | jq -r --arg PACKAGE_VERSION "${PACKAGE_VERSION}" '
-  #           .[] | select(.name | startswith($PACKAGE_VERSION)) | .id')
+            # Parse JSON response with jq to find the version ID
+            version_id=$(echo "${response_body}" | jq -r --arg PACKAGE_VERSION "${PACKAGE_VERSION}" '
+            .[] | select(.name | startswith($PACKAGE_VERSION)) | .id')
 
-  #           # Check if version_id is not empty
-  #           if [[ -n "${version_id}" ]]; then
-  #             echo "Version ID found: ${version_id}"
-  #             echo "version_id=${version_id}" >> $GITHUB_OUTPUT
-  #           else
-  #             echo "Version not found"
-  #             echo "version_id=0" >> $GITHUB_OUTPUT
-  #           fi
-  #         else
-  #           echo "Package not found or access denied"
-  #           echo "version_id=0" >> $GITHUB_OUTPUT
-  #         fi
+            # Check if version_id is not empty
+            if [[ -n "${version_id}" ]]; then
+              echo "Version ID found: ${version_id}"
+              echo "version_id=${version_id}" >> $GITHUB_OUTPUT
+            else
+              echo "Version not found"
+              echo "version_id=0" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "Package not found or access denied"
+            echo "version_id=0" >> $GITHUB_OUTPUT
+          fi
 
-  #     # Remove previous push of that version
-  #     - name: Delete package
-  #       if: ${{ !(startsWith(github.ref, 'refs/tags/v')) && steps.version-id.outputs.version_id != '0' }}
-  #       run: |
-  #         ORG=${{ github.repository_owner }}
-  #         PACKAGE_NAME=${{ steps.package.outputs.name }}
-  #         VERSION_ID=${{ steps.version-id.outputs.version_id }}
+      # Remove previous push of that version
+      - name: Delete package
+        if: ${{ !(startsWith(github.ref, 'refs/tags/v')) && steps.version-id.outputs.version_id != '0' }}
+        run: |
+          ORG=${{ github.repository_owner }}
+          PACKAGE_NAME=${{ steps.package.outputs.name }}
+          VERSION_ID=${{ steps.version-id.outputs.version_id }}
 
-  #         # Delete the package version using GitHub API
-  #         response=$(curl -s -w "%{http_code}" -X DELETE -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-  #           "https://api.github.com/orgs/${ORG}/packages/npm/${PACKAGE_NAME}/versions/${VERSION_ID}")
+          # Delete the package version using GitHub API
+          response=$(curl -s -w "%{http_code}" -X DELETE -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/orgs/${ORG}/packages/npm/${PACKAGE_NAME}/versions/${VERSION_ID}")
 
-  #         # Extract HTTP status code
-  #         status_code="${response: -3}"
+          # Extract HTTP status code
+          status_code="${response: -3}"
 
-  #         # Check if the request was successful (status code 2xx)
-  #         if [[ $status_code -eq 204 ]]; then
-  #           echo "Package version deleted successfully."
-  #         else
-  #           echo "Failed to delete package version. HTTP status code: $status_code"
-  #           exit 1
-  #         fi
+          # Check if the request was successful (status code 2xx)
+          if [[ $status_code -eq 204 ]]; then
+            echo "Package version deleted successfully."
+          else
+            echo "Failed to delete package version. HTTP status code: $status_code"
+            exit 1
+          fi
 
-  #     # Publish the package.
-  #     # If it's from a git tag, the package is published to npmjs.com and 
-  #     # the subversion name set as tag.
-  #     # If it's from a PR, the package is published to github and no tag is set.
-  #     # If none above, the package is published to github and the latest tag is set.
-  #     - name: Publish the package
-  #       run: |
-  #         # If git tag
-  #         if [[ $GITHUB_REF == refs/tags/v* ]]; then
-  #           TAG=$(echo '${{ github.ref }}' | sed -n 's/.*-\(.*\)\..*/\1/')
-  #           if [[ -z "$TAG" ]]; then
-  #             TAG='latest'
-  #           fi
-  #           npm publish ./dist --access public --tag $TAG
+      # Publish the package.
+      # If it's from a git tag, the package is published to npmjs.com and 
+      # the subversion name set as tag.
+      # If it's from a PR, the package is published to github and no tag is set.
+      # If none above, the package is published to github and the latest tag is set.
+      - name: Publish the package
+        run: |
+          # If git tag
+          if [[ $GITHUB_REF == refs/tags/v* ]]; then
+            TAG=$(echo '${{ github.ref }}' | sed -n 's/.*-\(.*\)\..*/\1/')
+            if [[ -z "$TAG" ]]; then
+              TAG='latest'
+            fi
+            npm publish ./dist --access public --tag $TAG
 
-  #         # If Pull Request
-  #         elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
-  #           npm publish ./dist --access public --no-tag --verbose
+          # If Pull Request
+          elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            npm publish ./dist --access public --no-tag --verbose
           
-  #         # If a push
-  #         elif [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "main" ]]; then
-  #           npm publish ./dist --access public --tag latest
+          # If a push
+          elif [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "main" ]]; then
+            npm publish ./dist --access public --tag latest
 
-  #         # Whatever else
-  #         else
-  #           npm publish ./dist --access public --tag $(basename "${{ github.ref }}")
-  #         fi
+          # Whatever else
+          else
+            npm publish ./dist --access public --tag $(basename "${{ github.ref }}")
+          fi
 
-  #       env:
-  #         NODE_AUTH_TOKEN: ${{ steps.package.outputs.secret }}
+        env:
+          NODE_AUTH_TOKEN: ${{ steps.package.outputs.secret }}
