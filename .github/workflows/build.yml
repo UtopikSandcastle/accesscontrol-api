@@ -49,11 +49,11 @@ jobs:
     needs: setup
     uses: UtopikGoodies/github-workflow/.github/workflows/docker.yml@init
     with:
-      docker-registry: ${{ needs.setup.outputs.docker-registry }}
-      docker-username: ${{ needs.setup.outputs.docker-username }}
+      registry: ${{ needs.setup.outputs.docker-registry }}
+      username: ${{ needs.setup.outputs.docker-username }}
       dockerfile-directory: ${{ needs.setup.outputs.dockerfile-directory }}
-    secrets:
-      docker-password: ${{ contains(inputs.docker-registry, 'ghcr.io') && secrets.GITHUB_TOKEN || secrets.DOCKERHUB_TOKEN }}
+      password: ${{ contains(inputs.docker-registry, 'ghcr.io') && secrets.GITHUB_TOKEN || secrets.DOCKERHUB_TOKEN }}
+    # secrets:
 
   openapi:
     needs: docker
