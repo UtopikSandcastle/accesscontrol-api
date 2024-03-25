@@ -89,7 +89,7 @@ jobs:
       npm-package-scope: ${{ needs.setup.outputs.npm-package-scope }}
       npm-package-version: ${{ needs.setup.outputs.npm-package-version }}
     secrets:
-      npm-registry-token: ${{ contains(inputs.docker-registry, 'ghcr.io') && secrets.GITHUB_TOKEN || secrets.DOCKERHUB_TOKEN }}
+      npm-registry-token: ${{ contains(inputs.npm-registry, 'github.com') && secrets.GITHUB_TOKEN || secrets.NPM_TOKEN }}
       # npm-registry-token: ${{ secrets.NPM_TOKEN }}
 
   # openapi-typescript-angular:
