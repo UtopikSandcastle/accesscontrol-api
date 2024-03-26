@@ -55,7 +55,7 @@ jobs:
           PACKAGE_NAME=${{ env.NPM_PACKAGE_NAME }}
           PACKAGE_VERSION=${{ env.NPM_PACKAGE_VERSION }}
 
-          packageVersions=$(gh api "orgs/${ORG}/packages/npm/${PACKAGE_NAME}/versions" --jq '.[].name | select(.name | startswith("'"${PACKAGE_VERSION}"'"))')
+          packageVersions=$(gh api "orgs/${ORG}/packages/npm/${PACKAGE_NAME}/versions" --jq '.[] | select(.name | startswith("'"${PACKAGE_VERSION}"'"))')
 
           echo "package-id=${packageVersions}" >> $GITHUB_OUTPUT
 
