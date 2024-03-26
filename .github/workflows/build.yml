@@ -47,14 +47,13 @@ jobs:
           fi
 
       - name: Get the package id
-        needs: setup
         id: package-id
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           ORG=${{ github.repository_owner }}
-          PACKAGE_NAME=${{ needs.setup.outputs.npm-package-name }}
-          PACKAGE_VERSION=${{ needs.setup.outputs.npm-package-version }}
+          PACKAGE_NAME=${{ env.NPM_PACKAGE_NAME }}
+          PACKAGE_VERSION=${{ env.NPM_PACKAGE_VERSION }}
 
           packageVersions=$(gh api "orgs/${ORG}/packages/npm/${PACKAGE_NAME}/versions" --jq '.[].name | select(.name | startswith("'"${PACKAGE_VERSION}"'"))')
 
