@@ -90,7 +90,7 @@ jobs:
       npm-package-scope: ${{ needs.setup.outputs.npm-package-scope }}
       npm-package-version: ${{ needs.setup.outputs.npm-package-version }}
     secrets:
-      npm-registry-token: ${{ contains(inputs.npm-registry, 'github.com') && secrets.GITHUB_TOKEN || secrets.NPM_TOKEN }}
+      npm-registry-token: ${{ contains(needs.setup.outputs.npm-registry, 'registry.npmjs.org') && secrets.NPM_TOKEN || secrets.GITHUB_TOKEN }}
       # npm-registry-token: ${{ secrets.NPM_TOKEN }}
 
 
