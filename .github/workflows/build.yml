@@ -17,56 +17,55 @@ env:
   AUTHOR_EMAIL: utopiksandcastle@utopiksolutions.com
 
 jobs:
-  setup:
-    runs-on: ubuntu-latest
-    outputs:
-      docker-registry: ${{ startsWith(github.ref, 'refs/tags/v') && 'docker.io' || 'ghcr.io' }}
-      docker-username: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.DOCKERHUB_USERNAME || github.actor }}
-      dockerfile-directory: "src/AccessControlAPI"
-      npm-registry: ${{ startsWith(github.ref, 'refs/tags/v') && 'https://registry.npmjs.org' || 'https://npm.pkg.github.com' }}
-      npm-package-author: "${{ env.AUTHOR_NAME }} <${{ env.AUTHOR_EMAIL }}>"
-      npm-package-name: ${{ env.NPM_PACKAGE_NAME }}
-      npm-package-scope: ${{ env.NPM_PACKAGE_SCOPE }}
-      npm-package-version: ${{ env.NPM_PACKAGE_VERSION }}
-      npm-package-tag: ${{ env.NPM_PACKAGE_TAG }}
-    steps:
-      - name: Set outputs
-        id: meta
-        run: |
-          echo "NPM_PACKAGE_NAME=${GITHUB_REPOSITORY#*/}-client" >> $GITHUB_ENV
-          echo "NPM_PACKAGE_SCOPE=@$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
-
-          # NPM_PACKAGE_VERSION
-          if [[ $GITHUB_REF == refs/tags/v* ]]; then
-            echo "NPM_PACKAGE_VERSION=$(echo '${{ github.ref }}' | sed 's|refs/tags/v||')" >> $GITHUB_ENV
-          else
-            if [ "${{ github.event_name }}" = "pull_request" ]; then
-              VERSION_SUFFIX="pr.${{ github.event.pull_request.number }}"
-            else
-              VERSION_SUFFIX=$(basename "${{ github.ref }}")
-            fi
-            echo "NPM_PACKAGE_VERSION=0.0.0-$VERSION_SUFFIX" >> $GITHUB_ENV
-          fi
-
-          # NPM_PACKAGE_TAG
-          # If git tag
-          if [[ $GITHUB_REF == refs/tags/v* ]]; then
-            TAG=$(echo '${{ github.ref }}' | sed -n 's/.*-\(.*\)\..*/\1/')
-            if [[ -z "$TAG" ]]; then
-              TAG='latest'
-            fi
-          
-          # If a push to default branch
-          elif [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "main" ]]; then
-            TAG='latest'
-          fi
-
-          echo "NPM_PACKAGE_TAG=$TAG" >> $GITHUB_ENV
-
   cleanup:
-    needs: setup
     uses: UtopikGoodies/github-workflow/.github/workflows/cleanup.yml@cleanup
 
+
+  # setup:
+  #   runs-on: ubuntu-latest
+  #   outputs:
+  #     docker-registry: ${{ startsWith(github.ref, 'refs/tags/v') && 'docker.io' || 'ghcr.io' }}
+  #     docker-username: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.DOCKERHUB_USERNAME || github.actor }}
+  #     dockerfile-directory: "src/AccessControlAPI"
+  #     npm-registry: ${{ startsWith(github.ref, 'refs/tags/v') && 'https://registry.npmjs.org' || 'https://npm.pkg.github.com' }}
+  #     npm-package-author: "${{ env.AUTHOR_NAME }} <${{ env.AUTHOR_EMAIL }}>"
+  #     npm-package-name: ${{ env.NPM_PACKAGE_NAME }}
+  #     npm-package-scope: ${{ env.NPM_PACKAGE_SCOPE }}
+  #     npm-package-version: ${{ env.NPM_PACKAGE_VERSION }}
+  #     npm-package-tag: ${{ env.NPM_PACKAGE_TAG }}
+  #   steps:
+  #     - name: Set outputs
+  #       id: meta
+  #       run: |
+  #         echo "NPM_PACKAGE_NAME=${GITHUB_REPOSITORY#*/}-client" >> $GITHUB_ENV
+  #         echo "NPM_PACKAGE_SCOPE=@$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+  #         # NPM_PACKAGE_VERSION
+  #         if [[ $GITHUB_REF == refs/tags/v* ]]; then
+  #           echo "NPM_PACKAGE_VERSION=$(echo '${{ github.ref }}' | sed 's|refs/tags/v||')" >> $GITHUB_ENV
+  #         else
+  #           if [ "${{ github.event_name }}" = "pull_request" ]; then
+  #             VERSION_SUFFIX="pr.${{ github.event.pull_request.number }}"
+  #           else
+  #             VERSION_SUFFIX=$(basename "${{ github.ref }}")
+  #           fi
+  #           echo "NPM_PACKAGE_VERSION=0.0.0-$VERSION_SUFFIX" >> $GITHUB_ENV
+  #         fi
+
+  #         # NPM_PACKAGE_TAG
+  #         # If git tag
+  #         if [[ $GITHUB_REF == refs/tags/v* ]]; then
+  #           TAG=$(echo '${{ github.ref }}' | sed -n 's/.*-\(.*\)\..*/\1/')
+  #           if [[ -z "$TAG" ]]; then
+  #             TAG='latest'
+  #           fi
+          
+  #         # If a push to default branch
+  #         elif [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "main" ]]; then
+  #           TAG='latest'
+  #         fi
+
+  #         echo "NPM_PACKAGE_TAG=$TAG" >> $GITHUB_ENV
   # docker:
   #   needs: setup
   #   uses: UtopikGoodies/github-workflow/.github/workflows/docker.yml
