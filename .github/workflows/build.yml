@@ -29,12 +29,15 @@ jobs:
       npm-package-name: ${{ env.NPM_PACKAGE_NAME }}
       npm-package-scope: ${{ env.NPM_PACKAGE_SCOPE }}
       npm-package-version: ${{ env.NPM_PACKAGE_VERSION }}
+      npm-package-tag: ${{ env.NPM_PACKAGE_TAG }}
     steps:
       - name: Set outputs
         id: meta
         run: |
           echo "NPM_PACKAGE_NAME=${GITHUB_REPOSITORY#*/}-client" >> $GITHUB_ENV
           echo "NPM_PACKAGE_SCOPE=@$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+          # NPM_PACKAGE_VERSION
           if [[ $GITHUB_REF == refs/tags/v* ]]; then
             echo "NPM_PACKAGE_VERSION=$(echo '${{ github.ref }}' | sed 's|refs/tags/v||')" >> $GITHUB_ENV
           else
@@ -45,6 +48,24 @@ jobs:
             fi
             echo "NPM_PACKAGE_VERSION=0.0.0-$VERSION_SUFFIX" >> $GITHUB_ENV
           fi
+
+          # NPM_PACKAGE_TAG
+          # If git tag
+          if [[ $GITHUB_REF == refs/tags/v* ]]; then
+            TAG=$(echo '${{ github.ref }}' | sed -n 's/.*-\(.*\)\..*/\1/')
+            if [[ -z "$TAG" ]]; then
+              TAG='latest'
+            fi
+
+          # If Pull Request
+          elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            # No tag
+          
+          # If a push to default branch
+          elif [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "main" ]]; then
+            TAG='latest'
+
+          echo "NPM_PACKAGE_TAG=$TAG" >> $GITHUB_ENV
 
   docker:
     needs: setup
@@ -84,12 +105,13 @@ jobs:
     with:
       artifact-name: openapi
       npm-registry: ${{ needs.setup.outputs.npm-registry }}
-      npm-package-author: ${{ needs.setup.outputs.npm-package-author }}
-      npm-package-description: "Client library for the Access Control API"
-      npm-package-license: "MIT"
-      npm-package-name: ${{ needs.setup.outputs.npm-package-name }}
       npm-package-scope: ${{ needs.setup.outputs.npm-package-scope }}
+      npm-package-name: ${{ needs.setup.outputs.npm-package-name }}
       npm-package-version: ${{ needs.setup.outputs.npm-package-version }}
+      npm-package-tags: ${{ needs.setup.outputs.npm-package-tag }}
+      npm-package-description: "Client library for the Access Control API"
+      npm-package-author: ${{ needs.setup.outputs.npm-package-author }}
+      npm-package-license: "MIT"
     secrets:
       npm-registry-token: ${{ contains(needs.setup.outputs.npm-registry, 'registry.npmjs.org') && secrets.NPM_TOKEN || secrets.GITHUB_TOKEN }}
       # npm-registry-token: ${{ secrets.NPM_TOKEN }}
