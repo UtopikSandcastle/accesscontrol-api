@@ -1,22 +1,18 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using UtopikSandcastle.AccessControl.API.Models;
+using UtopikSandcastle.AccessControlAPI.Models;
+using UtopikSandcastle.AccessControlAPI.Services;
 
-namespace UtopikSandcastle.AccessControl.API;
+namespace UtopikSandcastle.AccessControlAPI.Controllers;
 
 [ApiController]
-[Route("api/v1/[controller]")]
-public class AccessControlSystemController : ControllerBase
+[Route("v1/[controller]")]
+public class AccessControlSystemController(AccessControlSystemsService accessControlSystemsService) : ControllerBase
 {
-  private readonly AccessControlSystemsService _accessControlSystemsService;
-
-  public AccessControlSystemController(AccessControlSystemsService accessControlSystemsService)
-  {
-    _accessControlSystemsService = accessControlSystemsService;
-  }
+  private readonly AccessControlSystemsService _accessControlSystemsService = accessControlSystemsService;
 
   [HttpGet]
   public async Task<List<AccessControlSystem>> Get() =>
-    await _accessControlSystemsService.GetAsync();
+  await _accessControlSystemsService.GetAsync();
 
   [HttpGet("{id:length(24)}")]
   public async Task<ActionResult<AccessControlSystem>> Get(string id)

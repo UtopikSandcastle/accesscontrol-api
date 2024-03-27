@@ -1,18 +1,18 @@
 services:
   devcontainer:
-    image: mcr.microsoft.com/devcontainers/dotnet:1-7.0-bookworm
+    image: mcr.microsoft.com/devcontainers/dotnet:1-8.0-bookworm
     volumes:
       - ../..:/workspaces:cached
       - ~/.aspnet/https:/home/vscode/.aspnet/https
     network_mode: service:mongo
     command: sleep infinity
+    depends_on:
+      - mongo
 
   mongo:
-    image: mongo:7.0.4
-    restart: unless-stopped
+    image: mongo:4
 
   mongo-express:
     image: mongo-express
     ports:
-      - :8081
-    restart: unless-stopped
+      - 8091:8081

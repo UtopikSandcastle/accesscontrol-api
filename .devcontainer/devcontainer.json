@@ -4,24 +4,29 @@
   "dockerComposeFile": "docker-compose.yml",
   "service": "devcontainer",
   "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
-
   "remoteEnv": {
     "ASPNETCORE_Kestrel__Certificates__Default__Password": "SecurePwdGoesHere",
     "ASPNETCORE_Kestrel__Certificates__Default__Path": "${containerEnv:HOME:/home/vscode}/.aspnet/https/aspnetapp.pfx"
   },
-
   // Use 'postCreateCommand' to run commands after the container is created.
   "postCreateCommand": "./.devcontainer/postCreateCommand.sh",
-
+  "portsAttributes": {
+    "7291": {
+      "label": "https",
+      "protocol": "https"
+    }
+  },
+  "otherPortsAttributes": {
+    "onAutoForward": "silent"
+  },
   // Configure tool-specific properties.
   "customizations": {
     "vscode": {
       "extensions": [
-        "ms-dotnettools.csharp", // C# Dev Kit for Visual Studio Code
-        "ms-dotnettools.csdevkit" // C# for Visual Studio Code
+        "ms-dotnettools.csharp" // C# for Visual Studio Code
+        // "ms-dotnettools.csdevkit" // C# Dev Kit for Visual Studio Code
       ]
     }
   },
-
   "shutdownAction": "stopCompose"
 }

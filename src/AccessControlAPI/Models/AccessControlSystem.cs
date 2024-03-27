@@ -1,12 +1,9 @@
-
-using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Models;
+using DotSwashbuckle.AspNetCore.Annotations;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using Swashbuckle.AspNetCore.Annotations;
-using Swashbuckle.AspNetCore.SwaggerGen;
+using System.ComponentModel.DataAnnotations;
 
-namespace UtopikSandcastle.AccessControl.API.Models;
+namespace UtopikSandcastle.AccessControlAPI.Models;
 
 public class AccessControlSystem
 {
@@ -14,6 +11,7 @@ public class AccessControlSystem
   [BsonRepresentation(BsonType.ObjectId)]
   [SwaggerSchema(ReadOnly = true)]
   public string? Id { get; set; }
+  [Required]
   public required string Name { get; set; }
-  public List<string> AccessControlDeviceIds { get; set; } = new List<string>() { };
+  public List<AccessControlSystemComponent>? Components { get; set; }
 }
