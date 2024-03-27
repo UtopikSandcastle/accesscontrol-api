@@ -64,40 +64,40 @@ jobs:
 
           echo "NPM_PACKAGE_TAG=$TAG" >> $GITHUB_ENV
 
-  docker:
-    needs: setup
-    uses: UtopikGoodies/github-workflow/.github/workflows/docker.yml@init
-    with:
-      registry: ${{ needs.setup.outputs.docker-registry }}
-      username: ${{ needs.setup.outputs.docker-username }}
-      dockerfile-directory: ${{ needs.setup.outputs.dockerfile-directory }}
-    secrets:
-      password: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.DOCKERHUB_TOKEN || secrets.GITHUB_TOKEN }}
+  # docker:
+  #   needs: setup
+  #   uses: UtopikGoodies/github-workflow/.github/workflows/docker.yml@init
+  #   with:
+  #     registry: ${{ needs.setup.outputs.docker-registry }}
+  #     username: ${{ needs.setup.outputs.docker-username }}
+  #     dockerfile-directory: ${{ needs.setup.outputs.dockerfile-directory }}
+  #   secrets:
+  #     password: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.DOCKERHUB_TOKEN || secrets.GITHUB_TOKEN }}
 
-  openapi:
-    needs: docker
-    runs-on: ubuntu-latest
-    steps:
-      # Extract OpenAPI Configuration File from the Docker image.
-      # The file is generated in the Dockerfile and placed at the root.
-      - name: Extract OpenAPI configuration file
-        uses: shrink/actions-docker-extract@v3
-        with:
-          image: ${{ needs.docker.outputs.image-tags }}
-          path: App/openapi.json
-          destination: openapi.json
+  # openapi:
+  #   needs: docker
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     # Extract OpenAPI Configuration File from the Docker image.
+  #     # The file is generated in the Dockerfile and placed at the root.
+  #     - name: Extract OpenAPI configuration file
+  #       uses: shrink/actions-docker-extract@v3
+  #       with:
+  #         image: ${{ needs.docker.outputs.image-tags }}
+  #         path: App/openapi.json
+  #         destination: openapi.json
 
-      # The OpenAPI Configuration File can generate multiple language packages.
-      # This step store the artifact to be able to use it later.
-      - name: Upload OpenAPI configuration file to artifact
-        uses: actions/upload-artifact@v4.0.0
-        with:
-          name: openapi
-          path: openapi.json
+  #     # The OpenAPI Configuration File can generate multiple language packages.
+  #     # This step store the artifact to be able to use it later.
+  #     - name: Upload OpenAPI configuration file to artifact
+  #       uses: actions/upload-artifact@v4.0.0
+  #       with:
+  #         name: openapi
+  #         path: openapi.json
           
   openapi-typescript-angular:
-    # needs: [setup]
-    needs: [setup, openapi]
+    needs: [setup]
+    # needs: [setup, openapi]
     uses: UtopikGoodies/github-workflow/.github/workflows/openapi-typescript-angular.yml@init
     with:
       artifact-name: openapi
