@@ -63,9 +63,9 @@ jobs:
 
           echo "NPM_PACKAGE_TAG=$TAG" >> $GITHUB_ENV
 
-    cleanup:
-      runs-on: ubuntu-latest
-      uses: .github/workflows/cleanup.yml@cleanup
+  cleanup:
+    runs-on: ubuntu-latest
+    uses: .github/workflows/cleanup.yml@cleanup
 
   # docker:
   #   needs: setup
