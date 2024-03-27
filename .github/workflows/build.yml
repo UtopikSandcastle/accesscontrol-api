@@ -64,6 +64,7 @@ jobs:
           # If a push to default branch
           elif [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "main" ]]; then
             TAG='latest'
+          fi
 
           echo "NPM_PACKAGE_TAG=$TAG" >> $GITHUB_ENV
 
