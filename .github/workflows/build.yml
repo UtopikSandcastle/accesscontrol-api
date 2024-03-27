@@ -65,7 +65,7 @@ jobs:
 
   cleanup:
     runs-on: ubuntu-latest
-    uses: .github/workflows/cleanup.yml@cleanup
+    uses: UtopikGoodies/github-workflow/.github/workflows/cleanup.yml@cleanup
 
   # docker:
   #   needs: setup
