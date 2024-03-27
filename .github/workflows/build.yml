@@ -39,27 +39,12 @@ jobs:
             echo "NPM_PACKAGE_VERSION=$(echo '${{ github.ref }}' | sed 's|refs/tags/v||')" >> $GITHUB_ENV
           else
             if [ "${{ github.event_name }}" = "pull_request" ]; then
-              VERSION_SUFFIX="pr.${{ github.event.pull_request.number }}.0"
+              VERSION_SUFFIX="pr.${{ github.event.pull_request.number }}"
             else
               VERSION_SUFFIX=$(basename "${{ github.ref }}")
             fi
             echo "NPM_PACKAGE_VERSION=0.0.0-$VERSION_SUFFIX" >> $GITHUB_ENV
           fi
-
-      - name: Get the package id
-        id: package-id
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          ORG=${{ github.repository_owner }}
-          PACKAGE_NAME=${{ env.NPM_PACKAGE_NAME }}
-          PACKAGE_VERSION=${{ env.NPM_PACKAGE_VERSION }}
-
-          packageVersions=$(gh api "orgs/${ORG}/packages/npm/${PACKAGE_NAME}/versions" --jq '.[] | select(.name | startswith("'"${PACKAGE_VERSION}"'"))')
-
-          echo "package-id=${packageVersions}" >> $GITHUB_OUTPUT
-
-      - run: echo ${{ steps.package-id.outputs.package-id }}
 
   # docker:
   #   needs: setup
@@ -92,23 +77,22 @@ jobs:
   #         name: openapi
   #         path: openapi.json
           
-  # openapi-typescript-angular:
-  #   needs: [setup]
-  #   # needs: [setup, openapi]
-  #   uses: UtopikGoodies/github-workflow/.github/workflows/openapi-typescript-angular.yml@init
-  #   with:
-  #     artifact-name: openapi
-  #     npm-registry: ${{ needs.setup.outputs.npm-registry }}
-  #     npm-package-author: ${{ needs.setup.outputs.npm-package-author }}
-  #     npm-package-description: "Client library for the Access Control API"
-  #     npm-package-license: "MIT"
-  #     npm-package-name: ${{ needs.setup.outputs.npm-package-name }}
-  #     npm-package-scope: ${{ needs.setup.outputs.npm-package-scope }}
-  #     npm-package-version: ${{ needs.setup.outputs.npm-package-version }}
-  #   secrets:
-  #     npm-registry-token: ${{ contains(needs.setup.outputs.npm-registry, 'registry.npmjs.org') && secrets.NPM_TOKEN || secrets.GITHUB_TOKEN }}
-  #     # npm-registry-token: ${{ secrets.NPM_TOKEN }}
-
+  openapi-typescript-angular:
+    needs: [setup]
+    # needs: [setup, openapi]
+    uses: UtopikGoodies/github-workflow/.github/workflows/openapi-typescript-angular.yml@init
+    with:
+      artifact-name: openapi
+      npm-registry: ${{ needs.setup.outputs.npm-registry }}
+      npm-package-author: ${{ needs.setup.outputs.npm-package-author }}
+      npm-package-description: "Client library for the Access Control API"
+      npm-package-license: "MIT"
+      npm-package-name: ${{ needs.setup.outputs.npm-package-name }}
+      npm-package-scope: ${{ needs.setup.outputs.npm-package-scope }}
+      npm-package-version: ${{ needs.setup.outputs.npm-package-version }}
+    secrets:
+      npm-registry-token: ${{ contains(needs.setup.outputs.npm-registry, 'registry.npmjs.org') && secrets.NPM_TOKEN || secrets.GITHUB_TOKEN }}
+      # npm-registry-token: ${{ secrets.NPM_TOKEN }}
 
   # openapi-typescript-angular:
   #   needs: openapi
