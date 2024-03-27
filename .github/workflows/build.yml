@@ -56,9 +56,11 @@ jobs:
             if [[ -z "$TAG" ]]; then
               TAG='latest'
             fi
+
           # If Pull Request
-          elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
+          #elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
             # No tag
+          
           # If a push to default branch
           elif [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "main" ]]; then
             TAG='latest'
