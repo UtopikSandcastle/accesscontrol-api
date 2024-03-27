@@ -108,7 +108,7 @@ jobs:
       npm-package-scope: ${{ needs.setup.outputs.npm-package-scope }}
       npm-package-name: ${{ needs.setup.outputs.npm-package-name }}
       npm-package-version: ${{ needs.setup.outputs.npm-package-version }}
-      npm-package-tags: ${{ needs.setup.outputs.npm-package-tag }}
+      npm-package-tag: ${{ needs.setup.outputs.npm-package-tag }}
       npm-package-description: "Client library for the Access Control API"
       npm-package-author: ${{ needs.setup.outputs.npm-package-author }}
       npm-package-license: "MIT"
