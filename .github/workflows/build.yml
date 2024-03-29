@@ -68,7 +68,7 @@ jobs:
           echo "NPM_PACKAGE_TAG=$TAG" >> $GITHUB_ENV
   docker:
     needs: setup
-    uses: UtopikGoodies/github-workflow/.github/workflows/docker.yml@test
+    uses: UtopikGoodies/github-workflow/.github/workflows/docker.yml@main
     with:
       registry: ${{ needs.setup.outputs.docker-registry }}
       username: ${{ needs.setup.outputs.docker-username }}
@@ -99,7 +99,7 @@ jobs:
           
   openapi-typescript-angular:
     needs: [setup, openapi]
-    uses: UtopikGoodies/github-workflow/.github/workflows/openapi-typescript-angular.yml@test
+    uses: UtopikGoodies/github-workflow/.github/workflows/openapi-typescript-angular.yml@main
     with:
       artifact-name: openapi
       npm-registry: ${{ needs.setup.outputs.npm-registry }}
