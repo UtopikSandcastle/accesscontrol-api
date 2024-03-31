@@ -20,7 +20,7 @@ jobs:
   cleanup:
     uses: UtopikGoodies/github-workflow/.github/workflows/cleanup.yml@cleanup
     secrets:
-      GITHUB_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
+      github-token: ${{ secrets.WORKFLOW_TOKEN }}
 
   # setup:
   #   runs-on: ubuntu-latest
