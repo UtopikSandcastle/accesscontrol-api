@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Options;
 using MongoDB.Driver;
-using UtopikSandcastle.AccessControl.API.Models;
+using UtopikSandcastle.AccessControlAPI.Models;
 
-namespace UtopikSandcastle.AccessControl.API;
+namespace UtopikSandcastle.AccessControlAPI.Services;
 
 public class AccessControlSystemsService
 {

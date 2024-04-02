@@ -1,0 +1,12 @@
+name: Clean Up
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  cleanup:
+    uses: UtopikGoodies/github-workflow/.github/workflows/cleanup.yml@main
+    secrets:
+      github-token: ${{ secrets.WORKFLOW_TOKEN }}
+      

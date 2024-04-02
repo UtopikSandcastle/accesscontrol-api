@@ -8,19 +8,21 @@
       "name": ".NET Core Launch (web)",
       "type": "coreclr",
       "request": "launch",
-      "preLaunchTask": "build",
+      "preLaunchTask": "watch",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/src/AccessControlAPI/bin/Debug/net7.0/UtopikSandcastle.AccessControl.API.dll",
-      "args": [],
+      "program": "${workspaceFolder}/src/AccessControlAPI/bin/Debug/net8.0/UtopikSandcastle.AccessControlAPI.dll",
+      "args": [
+        ""
+      ],
       "cwd": "${workspaceFolder}/src/AccessControlAPI",
       "stopAtEntry": false,
       // Enable launching a web browser when ASP.NET Core starts. For more information: https://aka.ms/VSCode-CS-LaunchJson-WebBrowser
-      // "serverReadyAction": {
-      //   "action": "openExternally",
-      //   "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
-      // },
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+      },
       "env": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
       },
       "sourceFileMap": {
         "/Views": "${workspaceFolder}/Views"

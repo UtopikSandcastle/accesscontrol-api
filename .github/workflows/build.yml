@@ -7,7 +7,7 @@ on:
   pull_request:
     branches: [ "main" ]
 
-# Secrets:
+# secrets:
 #   DOCKERHUB_USERNAME
 #   DOCKERHUB_TOKEN
 #   NPM_TOKEN
@@ -17,103 +17,61 @@ env:
   AUTHOR_EMAIL: utopiksandcastle@utopiksolutions.com
 
 jobs:
-  docker:
+  setup:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-      # This is used to complete the identity challenge
-      # with sigstore/fulcio when running outside of PRs.
-      id-token: write
-    env:
-      DOCKER_REGISTRY: ${{ startsWith(github.ref, 'refs/tags/v') && 'docker.io' || 'ghcr.io' }}
-      DOCKER_USERNAME: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.DOCKERHUB_USERNAME || github.actor }}
-      DOCKER_PASSWORD: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.DOCKERHUB_TOKEN || secrets.GITHUB_TOKEN }}
-      DOCKERFILE_PATH: "src/AccessControlAPI"
     outputs:
-      image_tags: ${{ steps.updated-tags.outputs.tags }}
+      docker-registry: ${{ startsWith(github.ref, 'refs/tags/v') && 'docker.io' || 'ghcr.io' }}
+      docker-username: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.DOCKERHUB_USERNAME || github.actor }}
+      dockerfile-directory: "src/AccessControlAPI"
+      npm-registry: ${{ startsWith(github.ref, 'refs/tags/v') && 'https://registry.npmjs.org' || 'https://npm.pkg.github.com' }}
+      npm-package-author: "${{ env.AUTHOR_NAME }} <${{ env.AUTHOR_EMAIL }}>"
+      npm-package-name: ${{ env.NPM_PACKAGE_NAME }}
+      npm-package-scope: ${{ env.NPM_PACKAGE_SCOPE }}
+      npm-package-version: ${{ env.NPM_PACKAGE_VERSION }}
+      npm-package-tag: ${{ env.NPM_PACKAGE_TAG }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      # Install the cosign tool except on PR
-      # https://github.com/sigstore/cosign-installer
-      - name: Install cosign
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: sigstore/cosign-installer@v3
-        with:
-          cosign-release: 'v2.1.1'
-
-      # Set up BuildKit Docker container builder to be able to build
-      # multi-platform images and export cache
-      # https://github.com/docker/setup-buildx-action
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-           version: v0.11.2
-
-      # Login against a Docker DOCKER_REGISTRY
-      # https://github.com/docker/login-action
-      - name: Log into DOCKER_REGISTRY ${{ env.DOCKER_REGISTRY }}
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.DOCKER_REGISTRY }}
-          username: ${{ env.DOCKER_USERNAME }}
-          password: ${{ env.DOCKER_PASSWORD }}
-
-      # Extract metadata (tags, labels) for Docker
-      # https://github.com/docker/metadata-action
-      - name: Extract Docker metadata
+      - name: Set outputs
         id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.DOCKER_REGISTRY }}/${{ github.repository }}
-          tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
-
-      - name: Update tags
-        id: updated-tags
         run: |
-          TAGS="${{ steps.meta.outputs.tags }}"
-          MODIFIED_TAGS=$(echo "$TAGS" | sed 's/pr-/pr\./g')
-          if [[ -z $MODIFIED_TAGS ]]; then
-            MODIFIED_TAGS=$TAGS
+          echo "NPM_PACKAGE_NAME=${GITHUB_REPOSITORY#*/}-client" >> $GITHUB_ENV
+          echo "NPM_PACKAGE_SCOPE=@$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+          # NPM_PACKAGE_VERSION
+          if [[ $GITHUB_REF == refs/tags/v* ]]; then
+            echo "NPM_PACKAGE_VERSION=$(echo '${{ github.ref }}' | sed 's|refs/tags/v||')" >> $GITHUB_ENV
+          else
+            if [ "${{ github.event_name }}" = "pull_request" ]; then
+              VERSION_SUFFIX="pr.${{ github.event.pull_request.number }}"
+            else
+              VERSION_SUFFIX=$(basename "${{ github.ref }}")
+            fi
+            echo "NPM_PACKAGE_VERSION=0.0.0-$VERSION_SUFFIX" >> $GITHUB_ENV
           fi
-          echo "tags=$MODIFIED_TAGS" >> $GITHUB_OUTPUT
 
-      # Build and push Docker image with Buildx
-      # https://github.com/docker/build-push-action
-      - name: Build and push Docker image
-        id: build-and-push
-        uses: docker/build-push-action@v5
-        with:
-          context: ${{ env.DOCKERFILE_PATH }}
-          push: true
-          tags: ${{ steps.updated-tags.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          provenance: false
+          # NPM_PACKAGE_TAG
+          # If git tag
+          if [[ $GITHUB_REF == refs/tags/v* ]]; then
+            TAG=$(echo '${{ github.ref }}' | sed -n 's/.*-\(.*\)\..*/\1/')
+            if [[ -z "$TAG" ]]; then
+              TAG='latest'
+            fi
+          
+          # If a push to default branch
+          elif [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "main" ]]; then
+            TAG='latest'
+          fi
 
-      # Sign the resulting Docker image digest except on PRs.
-      # This will only write to the public Rekor transparency log when the Docker
-      # repository is public to avoid leaking data.  If you would like to publish
-      # transparency data even for private images, pass --force to cosign below.
-      # https://github.com/sigstore/cosign
-      - name: Sign the published Docker image
-        if: startsWith(github.ref, 'refs/tags/v')
-        env:
-          # https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-an-intermediate-environment-variable
-          TAGS: ${{ steps.meta.outputs.tags }}
-          DIGEST: ${{ steps.build-and-push.outputs.digest }}
-        # This step uses the identity token to provision an ephemeral certificate
-        # against the sigstore community Fulcio instance.
-        run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
-        
+          echo "NPM_PACKAGE_TAG=$TAG" >> $GITHUB_ENV
+  docker:
+    needs: setup
+    uses: UtopikGoodies/github-workflow/.github/workflows/docker.yml@main
+    with:
+      registry: ${{ needs.setup.outputs.docker-registry }}
+      username: ${{ needs.setup.outputs.docker-username }}
+      dockerfile-directory: ${{ needs.setup.outputs.dockerfile-directory }}
+    secrets:
+      password: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.DOCKERHUB_TOKEN || secrets.GITHUB_TOKEN }}
+
   openapi:
     needs: docker
     runs-on: ubuntu-latest
@@ -123,7 +81,7 @@ jobs:
       - name: Extract OpenAPI configuration file
         uses: shrink/actions-docker-extract@v3
         with:
-          image: ${{ needs.docker.outputs.image_tags }}
+          image: ${{ needs.docker.outputs.image-tags }}
           path: App/openapi.json
           destination: openapi.json
 
@@ -136,237 +94,17 @@ jobs:
           path: openapi.json
           
   openapi-typescript-angular:
-    needs: openapi
-    runs-on: ubuntu-latest
-    steps:
-      - name: Get package meta
-        id: package
-        run: |
-          # Use the version tag, if not use the PR id or the destination branch.
-          if [[ $GITHUB_REF == refs/tags/v* ]]; then
-            echo "registry=https://registry.npmjs.org" >> $GITHUB_OUTPUT
-            echo "secret=${{ secrets.NPM_TOKEN }}" >> $GITHUB_OUTPUT
-            echo "version=$(echo '${{ github.ref }}' | sed 's|refs/tags/v||')" >> $GITHUB_OUTPUT
-          else
-            if [ "${{ github.event_name }}" = "pull_request" ]; then
-              VERSION_SUFFIX="-pr.${{ github.event.pull_request.number }}"
-            else
-              VERSION_SUFFIX=-$(basename "${{ github.ref }}")
-            fi
-            echo "registry=https://npm.pkg.github.com" >> $GITHUB_OUTPUT
-            echo "secret=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_OUTPUT
-            echo "version=0.0.0$VERSION_SUFFIX" >> $GITHUB_OUTPUT
-          fi
-
-          echo "scope=@$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
-          echo "name=${GITHUB_REPOSITORY#*/}-client" >> $GITHUB_OUTPUT
-
-      # Get a copy of the OpenAPI Configuration File in the local directory.
-      - name: Download OpenAPI configuration file from artifact
-        uses: actions/download-artifact@v4.1.0
-        with:
-          name: openapi
-      
-      # Generate a npm package for Angular library based on the OpenAPI Configuration File.
-      - name: Generate Angular Client
-        run: |
-          docker run --rm \
-            -v ${{ github.workspace }}:/workspace \
-            openapitools/openapi-generator-cli \
-              generate \
-                -i /workspace/openapi.json \
-                -g typescript-angular \
-                -o /workspace/ \
-                --additional-properties=npmName=${{ steps.package.outputs.scope }}/${{ steps.package.outputs.name }},npmVersion=${{ steps.package.outputs.version }}
-      
-      # Setup the requirement for npm package
-      - name: Set up Node.js
-        uses: actions/setup-node@v4.0.1
-        with:
-          node-version: 18
-          registry-url: ${{ steps.package.outputs.registry }}
-          scope: ${{ steps.package.outputs.scope }}
-
-      # Add information to the package configuration.
-      - name: Configure package
-        run: |
-          jq '.repository = {"type": "git", "url": "git+https://github.com/${{ github.repository }}.git"}' package.json > tmp.json && mv tmp.json package.json
-          jq '.author = "${{ env.AUTHOR_NAME }} <${{ env.AUTHOR_EMAIL }}>"' package.json > tmp.json && mv tmp.json package.json
-      - run: cat package.json
-
-      # Install requirement and build the package.
-      - name: Build the package
-        run: npm install
-      - run: npm run build
-
-      - name: Get the previous package id for the same package version
-        if: ${{ !(startsWith(github.ref, 'refs/tags/v')) }}
-        id: version-id
-        env:
-          PACKAGE_NAME: ${{ steps.package-meta.outputs.name }}
-          PACKAGE_VERSION: ${{ steps.package-meta.outputs.version }}
-        uses: actions/github-script@v7
-        with:
-          script: |
-            try {
-              const response = await github.rest.packages.getAllPackageVersionsForPackageOwnedByOrg({
-                org: context.repo.owner,
-                package_name: process.env.PACKAGE_NAME,
-                package_type: 'npm'
-              });
-              const version = response.data.find(v => v.name === process.env.PACKAGE_VERSION);
-              if (version && version.id) {
-                return version.id;
-              } else {
-                console.error('Version not found');
-                return 0;
-              }
-            } catch (error) {
-              if (error.status === 404) {
-                console.error('Package not found or access denied');
-                return 0;
-              } else {
-                throw error; // re-throw the error if it's not a 404
-              }
-            }
-
-      # Remove previous push of that version
-      - name: Delete package
-        if: ${{ !(startsWith(github.ref, 'refs/tags/v')) && steps.version-id.outputs.result != '0' }}
-        uses: actions/delete-package-versions@v4
-        with:
-          package-name: ${{ steps.package.outputs.name }}
-          package-type: 'npm'
-          package-version-ids: ${{ steps.version-id.outputs.result }}
-
-      # Publish the package.
-      # If it's from a git tag, the package is published to npmjs.com and 
-      # the subversion name set as tag.
-      # If it's from a PR, the package is published to github and no tag is set.
-      # If none above, the package is published to github and the latest tag is set.
-      - name: Publish the package
-        run: |
-          # If git tag
-          if [[ $GITHUB_REF == refs/tags/v* ]]; then
-            TAG=$(echo '${{ github.ref }}' | sed -n 's/^v0\.0\.0-\(.*\)\.1$/\1/p')
-            if [[ -z "$TAG" ]]; then
-              TAG='latest'
-            fi
-            npm publish ./dist --access public --tag $TAG
-
-          # If Pull Request
-          elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            npm publish ./dist --access public --no-tag --verbose
-          
-          # If a push
-          elif [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "main" ]]; then
-            npm publish ./dist --access public --tag latest
-
-          # Whatever else
-          else
-            npm publish ./dist --access public --tag $(basename "${{ github.ref }}")
-          fi
-
-        env:
-          NODE_AUTH_TOKEN: ${{ steps.package.outputs.secret }}
-
-  clean-up:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: openapi-typescript-angular
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - name: Delete Versions of Packages for Closed PRs
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.WORKFLOW_TOKEN }}
-          script: |
-            const org = context.repo.owner;
-            const repo = context.repo.repo;
-
-            const packageTypes = ['container', 'npm', 'maven', 'rubygems', 'docker', 'nuget'];
-
-            async function safeApiCall(apiPromise, description) {
-              try {
-                const response = await apiPromise;
-                console.log(`Success: ${description}`);
-                return response;
-              } catch (error) {
-                console.error(`API Error for ${description}:`, error);
-                return null;
-              }
-            }
-
-            const closedPrsResponse = await safeApiCall(
-              github.rest.pulls.list({
-                owner: org,
-                repo: repo,
-                state: 'closed'
-              }), 
-              'Fetching closed PRs'
-            );
-            if (!closedPrsResponse) return;
-
-            const closedPrNumbers = closedPrsResponse.data.map(pr => pr.number);
-
-            for (const packageType of packageTypes) {
-              console.log(`Checking package type: ${packageType}`);
-
-              let packagesResponse;
-              try {
-                packagesResponse = await github.rest.packages.listPackagesForOrganization({
-                  org: org,
-                  package_type: packageType
-                });
-              } catch (error) {
-                console.error(`Error fetching packages of type ${packageType}:`, error);
-                continue;
-              }
-
-              for (const package of packagesResponse.data) {
-                const packageName = package.name;
-                console.log(`Checking package: ${packageName}`);
-
-                const versionsResponse = await safeApiCall(
-                  github.rest.packages.getAllPackageVersionsForPackageOwnedByOrg({
-                    org: org,
-                    package_type: packageType,
-                    package_name: packageName
-                  }),
-                  `Fetching versions for package ${packageName}`
-                );
-                if (!versionsResponse) continue;
-
-                for (const version of versionsResponse.data) {
-                  let prNumberMatch;
-                  if (packageType === 'container' || packageType === 'docker') {
-                    // For container and docker, use the tag
-                    const versionTags = version.metadata.container.tags;
-                    for (const tag of versionTags) {
-                      prNumberMatch = tag.match(/.(\d+)$/);
-                      if (prNumberMatch && closedPrNumbers.includes(parseInt(prNumberMatch[1]))) {
-                        break; // Break the loop if a matching PR number is found
-                      }
-                    }
-                  } else {
-                    // For maven, rubygems, nuget, use the version name
-                    prNumberMatch = version.name.match(/.(\d+)$/);
-                  }
-
-                  if (prNumberMatch && closedPrNumbers.includes(parseInt(prNumberMatch[1]))) {
-                    console.log(`Deleting package version ${version.id} of ${packageName} for closed PR #${prNumberMatch[1]}`);
-                    await safeApiCall(
-                      github.rest.packages.deletePackageVersionForOrg({
-                        org: org,
-                        package_type: packageType,
-                        package_name: packageName,
-                        package_version_id: version.id,
-                      }),
-                      `Deleting package version ${version.id} of ${packageName}`
-                    );
-                  }
-                }
-              }
-            }
+    needs: [setup, openapi]
+    uses: UtopikGoodies/github-workflow/.github/workflows/openapi-typescript-angular.yml@main
+    with:
+      artifact-name: openapi
+      npm-registry: ${{ needs.setup.outputs.npm-registry }}
+      npm-package-scope: ${{ needs.setup.outputs.npm-package-scope }}
+      npm-package-name: ${{ needs.setup.outputs.npm-package-name }}
+      npm-package-version: ${{ needs.setup.outputs.npm-package-version }}
+      npm-package-tag: ${{ needs.setup.outputs.npm-package-tag }}
+      npm-package-description: "Client library for the Access Control API"
+      npm-package-author: ${{ needs.setup.outputs.npm-package-author }}
+      npm-package-license: "MIT"
+    secrets:
+      npm-registry-token: ${{ contains(needs.setup.outputs.npm-registry, 'registry.npmjs.org') && secrets.NPM_TOKEN || secrets.GITHUB_TOKEN }}

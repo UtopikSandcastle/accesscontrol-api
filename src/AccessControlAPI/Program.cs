@@ -1,7 +1,6 @@
 using System.Text.Json.Serialization;
-using UtopikSandcastle.AccessControl.API;
-using UtopikSandcastle.AccessControl.API.Models;
-using UtopikSandcastle.AccessControl.API.Services;
+using UtopikSandcastle.AccessControlAPI.Models;
+using UtopikSandcastle.AccessControlAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,9 +37,18 @@ if (app.Environment.IsDevelopment())
     c.InjectStylesheet("/swagger/custom.css");
     c.RoutePrefix = String.Empty;
   });
+  app.UseCors(builder => builder
+    .AllowAnyHeader()
+    .AllowAnyMethod()
+    .SetIsOriginAllowed((host) => true)
+    .AllowCredentials());
+
+
+  var devicesService = app.Services.GetRequiredService<AccessControlDevicesService>();
+  await devicesService.SeedDataAsync();
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
