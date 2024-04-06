@@ -21,7 +21,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       docker-registry: ${{ startsWith(github.ref, 'refs/tags/v') && 'docker.io' || 'ghcr.io' }}
-      docker-username: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.DOCKERHUB_USERNAME || github.actor }}
       dockerfile-directory: "src/AccessControlAPI"
       npm-registry: ${{ startsWith(github.ref, 'refs/tags/v') && 'https://registry.npmjs.org' || 'https://npm.pkg.github.com' }}
       npm-package-author: "${{ env.AUTHOR_NAME }} <${{ env.AUTHOR_EMAIL }}>"
@@ -67,9 +66,9 @@ jobs:
     uses: UtopikGoodies/github-workflow/.github/workflows/docker.yml@main
     with:
       registry: ${{ needs.setup.outputs.docker-registry }}
-      username: ${{ needs.setup.outputs.docker-username }}
       dockerfile-directory: ${{ needs.setup.outputs.dockerfile-directory }}
     secrets:
+      username: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.DOCKERHUB_USERNAME || github.actor }}
       password: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.DOCKERHUB_TOKEN || secrets.GITHUB_TOKEN }}
 
   openapi:
