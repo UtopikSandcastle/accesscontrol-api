@@ -43,7 +43,6 @@ if (app.Environment.IsDevelopment())
     .SetIsOriginAllowed((host) => true)
     .AllowCredentials());
 
-
   var devicesService = app.Services.GetRequiredService<AccessControlDevicesService>();
   await devicesService.SeedDataAsync();
 }
